@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team – {{siteTitle}}</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <span class="logo-dot"><span data-logo-emoji>🚪</span></span>
+      <span data-site-title>Meine Produktidee</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Produkte</a>
+      <a href="team.html">Team</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-content">
+  <div class="container">
+    <h1>Unser Team</h1>
+    <p class="lead">Die Menschen hinter <span data-site-title>diesem Projekt</span>.</p>
+    <div id="teamGrid" class="team-grid"></div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <span>&copy; <span id="year"></span> <span data-site-title>Meine Produktidee</span></span>
+    <nav>
+      <a href="team.html">Team</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="auswertung.html">Auswertung</a>
+    </nav>
+  </div>
+</footer>
+
+<div class="consent-banner" id="consentBanner">
+  <p>Wir verwenden anonyme Analyse-Funktionen (eigenes Tracking, optional Google Analytics), um zu verstehen, welche Produktideen auf Interesse stoßen. Details in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+  <div class="actions">
+    <button type="button" class="btn btn-primary" id="consentAccept">Akzeptieren</button>
+    <button type="button" class="btn btn-ghost" id="consentDecline">Ablehnen</button>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/tracking.js"></script>
+<script src="js/app.js"></script>
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>

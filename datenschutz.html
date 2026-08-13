@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Datenschutz – {{siteTitle}}</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <span class="logo-dot"><span data-logo-emoji>🚪</span></span>
+      <span data-site-title>Meine Produktidee</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Produkte</a>
+      <a href="team.html">Team</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-content">
+  <div class="container">
+    <h1>Datenschutzerklärung</h1>
+    <p class="lead">Stand: <span id="today"></span></p>
+
+    <section>
+      <h2>1. Verantwortliche Stelle</h2>
+      <p id="dsAddress"></p>
+      <p id="dsContact"></p>
+
+      <h2>2. Worum es auf dieser Seite geht</h2>
+      <p>
+        Diese Website ist ein sogenannter <strong>Fake-Door-Test</strong>: Wir testen, für
+        welche Produktideen echtes Kaufinteresse besteht. Es findet <strong>kein echter
+        Verkauf</strong> statt – der Kauf-Button löst keine Zahlung aus. Stattdessen fragen
+        wir dich nach einem Klick, ob du per E-Mail benachrichtigt werden möchtest, sobald
+        das Produkt verfügbar ist.
+      </p>
+
+      <h2>3. Welche Daten wir erheben</h2>
+      <p>Wenn du der Analyse im Banner zustimmst, erfassen wir:</p>
+      <ul>
+        <li>welche Seite du aufrufst und wann (Seitenaufruf),</li>
+        <li>auf welche Produktkarte du klickst und ob du den Kauf-/Checkout-Dialog öffnest,</li>
+        <li>ob du auf "Jetzt kaufen" klickst (Kaufabsicht – ohne echte Zahlungsdaten),</li>
+        <li>wie lange du auf der Seite bzw. im Dialog verweilst,</li>
+        <li>eine zufällig erzeugte, nicht personenbezogene Sitzungs-ID (gespeichert in deinem Browser via <code>localStorage</code>), um Klicks derselben Sitzung zuzuordnen,</li>
+        <li>technische Angaben wie Browsertyp und verweisende Seite (Referrer),</li>
+        <li>freiwillig: deine E-Mail-Adresse, <strong>nur</strong> wenn du sie aktiv im Formular einträgst und der Speicherung zustimmst.</li>
+      </ul>
+      <p>
+        In die Zahlungsfelder (Kartennummer, Ablaufdatum, CVC) eingegebene Werte werden
+        <strong>nicht</strong> ausgelesen, übertragen oder gespeichert – sie dienen nur der
+        optischen Simulation eines Bestellvorgangs.
+      </p>
+
+      <h2>4. Wo diese Daten gespeichert werden</h2>
+      <p>
+        Die Ereignisse werden an ein von uns betriebenes Google Sheet (über ein Google Apps
+        Script) übertragen und dort tabellarisch gespeichert. Google kann dabei als
+        Auftragsverarbeiter technische Metadaten wie deine IP-Adresse verarbeiten, siehe
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google-Datenschutzerklärung</a>.
+      </p>
+      <p id="gaBlock" style="display:none;">
+        Zusätzlich verwenden wir Google Analytics 4 zur anonymisierten Reichweitenmessung
+        (IP-Anonymisierung aktiviert).
+      </p>
+
+      <h2>5. Rechtsgrundlage</h2>
+      <p>
+        Die Verarbeitung erfolgt auf Grundlage deiner Einwilligung (Art. 6 Abs. 1 lit. a
+        DSGVO), die du über den Cookie-/Consent-Banner erteilst. Für die freiwillige
+        E-Mail-Benachrichtigung ist die gesonderte Zustimmung im Formular die Rechtsgrundlage.
+        Du kannst deine Einwilligung jederzeit für die Zukunft widerrufen.
+      </p>
+
+      <h2>6. Einwilligung widerrufen</h2>
+      <p>
+        Über diesen Button setzt du deine Cookie-/Tracking-Einwilligung zurück (die Seite
+        lädt danach neu und zeigt den Banner erneut an):
+      </p>
+      <button type="button" class="btn btn-ghost" id="resetConsentBtn">Einwilligung zurücksetzen</button>
+
+      <h2>7. Speicherdauer</h2>
+      <p>
+        Ereignisdaten im Google Sheet verbleiben dort, bis sie manuell gelöscht werden. Die
+        lokale Sitzungs-ID in deinem Browser bleibt bestehen, bis du deinen Browser-Speicher
+        leerst oder die Einwilligung widerrufst.
+      </p>
+
+      <h2>8. Deine Rechte</h2>
+      <p>
+        Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der
+        Verarbeitung, Datenübertragbarkeit sowie Widerspruch. Wende dich dazu an die oben
+        genannte Kontaktadresse.
+      </p>
+
+      <p class="placeholder">
+        ⚠️ Platzhalter: Diese Vorlage ersetzt keine Rechtsberatung. Bitte prüfe – insbesondere
+        bei Erhebung von E-Mail-Adressen und Einsatz von Google-Diensten – ob eine
+        Auftragsverarbeitungsvereinbarung nötig ist und passe die Texte an dein Projekt an.
+      </p>
+    </section>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <span>&copy; <span id="year"></span> <span data-site-title>Meine Produktidee</span></span>
+    <nav>
+      <a href="team.html">Team</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="auswertung.html">Auswertung</a>
+    </nav>
+  </div>
+</footer>
+
+<div class="consent-banner" id="consentBanner">
+  <p>Wir verwenden anonyme Analyse-Funktionen (eigenes Tracking, optional Google Analytics), um zu verstehen, welche Produktideen auf Interesse stoßen. Details in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+  <div class="actions">
+    <button type="button" class="btn btn-primary" id="consentAccept">Akzeptieren</button>
+    <button type="button" class="btn btn-ghost" id="consentDecline">Ablehnen</button>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/tracking.js"></script>
+<script src="js/app.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+  document.getElementById("today").textContent = new Date().toLocaleDateString("de-DE");
+  document.getElementById("dsAddress").innerHTML =
+    escapeHtmlLocal(SITE_CONFIG.companyName) + ", " +
+    escapeHtmlLocal(SITE_CONFIG.companyStreet) + ", " +
+    escapeHtmlLocal(SITE_CONFIG.companyCity) + ", " +
+    escapeHtmlLocal(SITE_CONFIG.companyCountry);
+  document.getElementById("dsContact").textContent = "E-Mail: " + SITE_CONFIG.companyEmail;
+  if (SITE_CONFIG.gaMeasurementId) document.getElementById("gaBlock").style.display = "block";
+  document.getElementById("resetConsentBtn").addEventListener("click", function () {
+    FDT.resetConsent();
+  });
+
+  function escapeHtmlLocal(str) {
+    return String(str == null ? "" : str).replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    }[c]));
+  }
+</script>
+</body>
+</html>

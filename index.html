@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{siteTitle}}</title>
+<meta name="description" content="Early-Access-Test – finde heraus, welche Produkte wirklich gefragt sind.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <span class="logo-dot"><span data-logo-emoji>🚪</span></span>
+      <span data-site-title>Meine Produktidee</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Produkte</a>
+      <a href="team.html">Team</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <span class="badge" id="heroBadge"></span>
+    <h1 id="heroHeadline"></h1>
+    <p class="subtext" id="heroSubtext"></p>
+  </div>
+</section>
+
+<section class="doors-section">
+  <div class="container">
+    <div id="doorsGrid" class="doors-grid"></div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <span>&copy; <span id="year"></span> <span data-site-title>Meine Produktidee</span></span>
+    <nav>
+      <a href="team.html">Team</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="auswertung.html">Auswertung</a>
+    </nav>
+  </div>
+</footer>
+
+<!-- ============== CHECKOUT-MODAL ============== -->
+<div class="modal-overlay" id="checkoutOverlay">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-label="Checkout">
+    <button type="button" class="modal-close" data-close-modal aria-label="Schließen">✕</button>
+
+    <div class="modal-product">
+      <div class="thumb" data-modal-thumb></div>
+      <div>
+        <h2 data-modal-title>Produkt</h2>
+        <div class="price" data-modal-price>0,00 €</div>
+      </div>
+    </div>
+
+    <!-- Schritt 1: Fake-Zahlungsformular -->
+    <div class="step active" id="stepPay">
+      <div class="field">
+        <label for="payForm-cardnumber">Kartennummer</label>
+        <input type="text" id="payForm-cardnumber" inputmode="numeric" autocomplete="off" placeholder="4242 4242 4242 4242">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="payForm-expiry">Gültig bis</label>
+          <input type="text" id="payForm-expiry" autocomplete="off" placeholder="MM / JJ">
+        </div>
+        <div class="field">
+          <label for="payForm-cvc">CVC</label>
+          <input type="text" id="payForm-cvc" autocomplete="off" placeholder="123">
+        </div>
+      </div>
+      <button type="button" class="btn btn-accent btn-block" id="buyButton">Jetzt kaufen</button>
+      <p class="demo-note">🔒 Demo-Checkout – es erfolgt keine echte Zahlung.</p>
+    </div>
+
+    <!-- Schritt 2: E-Mail einsammeln -->
+    <div class="step" id="stepEmail">
+      <div class="reveal-icon">⏳</div>
+      <h3 class="reveal-title" id="emailPromptTitle">Fast geschafft!</h3>
+      <p class="reveal-text" id="emailPromptText"></p>
+      <form id="emailForm">
+        <div class="field">
+          <label for="emailInput" class="visually-hidden">E-Mail-Adresse</label>
+          <input type="email" id="emailInput" required placeholder="du@beispiel.de">
+        </div>
+        <label class="consent-line">
+          <input type="checkbox" id="emailConsentCheck">
+          <span>Ich bin einverstanden, dass meine E-Mail-Adresse gespeichert wird, um mich über den Launch zu informieren. Mehr dazu in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span>
+        </label>
+        <button type="submit" class="btn btn-primary btn-block" id="emailSubmitBtn">Benachrichtige mich</button>
+        <div class="form-msg" id="emailFormMsg"></div>
+      </form>
+      <p style="text-align:center; margin-top:10px;">
+        <button type="button" class="btn btn-ghost" id="backToPayBtn" style="font-size:0.8rem; padding:6px 12px;">Zurück</button>
+      </p>
+    </div>
+
+    <!-- Schritt 3: Danke -->
+    <div class="step" id="stepThanks">
+      <div class="thanks-box">
+        <div class="reveal-icon">🎉</div>
+        <h3 class="reveal-title" id="emailThanksTitle_text">Danke dir!</h3>
+        <p class="reveal-text" id="emailThanksText_text"></p>
+        <button type="button" class="btn btn-ghost" data-close-modal>Schließen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============== CONSENT-BANNER ============== -->
+<div class="consent-banner" id="consentBanner">
+  <p>Wir verwenden anonyme Analyse-Funktionen (eigenes Tracking, optional Google Analytics), um zu verstehen, welche Produktideen auf Interesse stoßen. Details in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+  <div class="actions">
+    <button type="button" class="btn btn-primary" id="consentAccept">Akzeptieren</button>
+    <button type="button" class="btn btn-ghost" id="consentDecline">Ablehnen</button>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/tracking.js"></script>
+<script src="js/app.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+  document.getElementById("heroBadge").textContent = SITE_CONFIG.heroBadge;
+  document.getElementById("heroHeadline").textContent = SITE_CONFIG.heroHeadline;
+  document.getElementById("heroSubtext").textContent = SITE_CONFIG.heroSubtext;
+</script>
+</body>
+</html>

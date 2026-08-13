@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Impressum – {{siteTitle}}</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <span class="logo-dot"><span data-logo-emoji>🚪</span></span>
+      <span data-site-title>Meine Produktidee</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Produkte</a>
+      <a href="team.html">Team</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-content">
+  <div class="container">
+    <h1>Impressum</h1>
+    <p class="lead">Angaben gemäß § 5 TMG / § 18 Abs. 2 MStV</p>
+
+    <section>
+      <h2>Angaben zum Anbieter</h2>
+      <p id="impAddress"></p>
+
+      <h2>Kontakt</h2>
+      <p id="impContact"></p>
+
+      <h2>Verantwortlich für den Inhalt</h2>
+      <p id="impResponsible"></p>
+
+      <h2>Hinweis</h2>
+      <p>
+        Diese Seite dient der Validierung einer Produktidee ("Fake-Door-Test"). Es findet
+        <strong>kein echter Verkauf und keine echte Zahlungsabwicklung</strong> statt.
+        Beim Klick auf "Jetzt kaufen" wird keine Zahlung ausgelöst.
+      </p>
+
+      <p class="placeholder">
+        ⚠️ Platzhalter: Bitte trage deine echten Angaben in js/config.js ein, bevor du die
+        Seite live schaltest. Diese Seite ist kein Ersatz für Rechtsberatung – prüfe im
+        Zweifel mit einer fachkundigen Stelle, ob dein Impressum vollständig ist
+        (insbesondere bei gewerblicher Nutzung, Umsatzsteuer-ID, Aufsichtsbehörde usw.).
+      </p>
+    </section>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <span>&copy; <span id="year"></span> <span data-site-title>Meine Produktidee</span></span>
+    <nav>
+      <a href="team.html">Team</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="auswertung.html">Auswertung</a>
+    </nav>
+  </div>
+</footer>
+
+<div class="consent-banner" id="consentBanner">
+  <p>Wir verwenden anonyme Analyse-Funktionen (eigenes Tracking, optional Google Analytics), um zu verstehen, welche Produktideen auf Interesse stoßen. Details in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+  <div class="actions">
+    <button type="button" class="btn btn-primary" id="consentAccept">Akzeptieren</button>
+    <button type="button" class="btn btn-ghost" id="consentDecline">Ablehnen</button>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/tracking.js"></script>
+<script src="js/app.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+  document.getElementById("impAddress").innerHTML =
+    escapeHtmlLocal(SITE_CONFIG.companyName) + "<br>" +
+    escapeHtmlLocal(SITE_CONFIG.companyStreet) + "<br>" +
+    escapeHtmlLocal(SITE_CONFIG.companyCity) + "<br>" +
+    escapeHtmlLocal(SITE_CONFIG.companyCountry);
+  document.getElementById("impContact").innerHTML =
+    "E-Mail: " + escapeHtmlLocal(SITE_CONFIG.companyEmail) +
+    (SITE_CONFIG.companyPhone ? "<br>Telefon: " + escapeHtmlLocal(SITE_CONFIG.companyPhone) : "");
+  document.getElementById("impResponsible").textContent = SITE_CONFIG.responsiblePerson;
+
+  function escapeHtmlLocal(str) {
+    return String(str == null ? "" : str).replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    }[c]));
+  }
+</script>
+</body>
+</html>

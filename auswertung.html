@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auswertung – {{siteTitle}}</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <span class="logo-dot"><span data-logo-emoji>🚪</span></span>
+      <span data-site-title>Meine Produktidee</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Produkte</a>
+      <a href="team.html">Team</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-content">
+  <div class="container">
+    <h1>Auswertung</h1>
+    <p class="lead">Live-Ergebnisse deines Fake-Door-Tests: welche Tür wird geklickt, wer kauft (fast), wer hinterlässt eine E-Mail.</p>
+    <p class="source-note" id="sourceNote"></p>
+
+    <div class="kpi-row">
+      <div class="kpi-tile">
+        <div class="kpi-label">Ereignisse gesamt</div>
+        <div class="kpi-value" id="kpiEvents">0</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">Getestete Produkte</div>
+        <div class="kpi-value" id="kpiDoors">0</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">E-Mail-Anmeldungen</div>
+        <div class="kpi-value" id="kpiEmails">0</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">Ø Verweildauer</div>
+        <div class="kpi-value" id="kpiDuration">0s</div>
+      </div>
+    </div>
+
+    <div class="viz-card">
+      <h2>Gesamt-Funnel</h2>
+      <p class="viz-sub">Wie viele Besucher:innen erreichen jede Stufe des Kaufprozesses (über alle Produkte hinweg)?</p>
+      <div id="funnelChart"></div>
+    </div>
+
+    <div class="viz-card">
+      <h2>Klicks je Produkt</h2>
+      <p class="viz-sub">Welche Tür interessiert am meisten? Sortiert nach Klicks auf "Ansehen".</p>
+      <div id="doorBars"></div>
+    </div>
+
+    <div class="viz-card">
+      <h2>Detailtabelle je Produkt</h2>
+      <p class="viz-sub">Klick→E-Mail-Rate zeigt, wie viele der Klickenden am Ende ihre E-Mail-Adresse hinterlassen haben.</p>
+      <div class="data-table-wrap">
+        <table class="data-table" id="doorTable">
+          <thead>
+            <tr>
+              <th>Produkt</th>
+              <th>Ansichten</th>
+              <th>Klicks</th>
+              <th>Checkout</th>
+              <th>Kaufversuch</th>
+              <th>E-Mails</th>
+              <th>Klick→E-Mail</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="setup-callout">
+      <strong>Testdaten lokal exportieren:</strong> Ohne eingerichtetes Google Sheet zeigt diese Seite nur Klicks aus
+      DEINEM eigenen Browser (gut zum Testen). Für den echten Test mit richtigen Besucher:innen trage die
+      Web-App-URL deines Google Apps Scripts in <code>js/config.js</code> ein (siehe README.md).
+      <br><br>
+      <button type="button" class="btn btn-ghost" id="exportCsvBtn">Lokale Testdaten als CSV exportieren</button>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <span>&copy; <span id="year"></span> <span data-site-title>Meine Produktidee</span></span>
+    <nav>
+      <a href="team.html">Team</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="auswertung.html">Auswertung</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/tracking.js"></script>
+<script src="js/app.js"></script>
+<script src="js/stats.js"></script>
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>
