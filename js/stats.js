@@ -8,12 +8,12 @@
   "use strict";
 
   // Entspricht dem Weg einer Tür: Startseite -> Klick -> eigene
-  // Produktseite -> "Vormerken" -> E-Mail hinterlassen.
+  // Produktseite -> Popup "Verfügbarkeit prüfen" -> E-Mail hinterlassen.
   const FUNNEL_STAGES = [
     { key: "door_impression", label: "Ansicht (Startseite)" },
     { key: "door_click", label: "Klick zum Produkt" },
     { key: "page_view", label: "Produktseite aufgerufen" },
-    { key: "reserve_click", label: "Vormerken geklickt" },
+    { key: "reserve_click", label: "Popup geöffnet" },
     { key: "email_submit", label: "E-Mail hinterlassen" },
   ];
 
@@ -75,11 +75,174 @@
     return total;
   }
 
-  function renderKpis(data) {
+  function thumbHtml(r) {
+    if (r.image) return `<img src="${escapeHtml(r.image)}" alt="${escapeHtml(r.title)}">`;
+    return escapeHtml(r.emoji || "🔒");
+  }
+
+  /* =====================================================================
+     PRODUKTVERGLEICH -- verbindet die Tracking-Zahlen (Klicks, Verweildauer,
+     ...) mit den Produktangaben aus js/config.js (Preis, Bild) und
+     berechnet je Produkt eine "Gesamt-Conversion": von allen, die die
+     Produktseite überhaupt gesehen haben (page_view -- der zuverlässigste
+     Nenner, auch bei direkt geteilten Links ohne Umweg über die Startseite),
+     wie viele haben am Ende "Vormerken" abgeschlossen (email_submit)?
+     Darüber lässt sich einfach erklären, was gut läuft und was nicht --
+     auch im Verhältnis zum Preis, der direkt mit angezeigt wird.
+     ===================================================================== */
+  function makeComparisonRow(id, d, cfg) {
+    const c = (d && d.counts) || {};
+    const impressions = c.door_impression || 0;
+    const clicks = c.door_click || 0;
+    const pageViews = c.page_view || 0;
+    const reserves = c.reserve_click || 0; // = Popup geöffnet ("Verfügbarkeit prüfen")
+    const abandons = c.email_modal_abandon || 0; // Popup geschlossen, ohne E-Mail einzutragen
+    const emails = c.email_submit || 0;
+    // Reichweite = wie viele haben die Produktseite überhaupt gesehen.
+    // Fallback auf Klicks/Impressionen, falls page_view (noch) fehlt.
+    const reach = pageViews || clicks || impressions;
+    return {
+      id,
+      title: (cfg && cfg.title) || (d && d.title) || id,
+      price: cfg ? cfg.price : "",
+      emoji: cfg ? cfg.emoji : "",
+      image: cfg ? cfg.image : "",
+      impressions, clicks, pageViews, reserves, abandons, emails,
+      avgDurationSeconds: (d && d.avgDurationSeconds) || 0,
+      reach,
+      conversion: reach ? emails / reach : null,
+    };
+  }
+
+  function buildComparison(doors) {
+    // WICHTIG: Ausgangspunkt ist die Produktliste aus js/config.js, nicht
+    // nur die bereits vorhandenen Ereignisse -- sonst würde ein Produkt
+    // OHNE jeden Aufruf (das ist selbst ein starkes Signal: keiner
+    // interessiert sich dafür!) im Vergleich komplett fehlen, statt als
+    // "noch keine Daten" aufzutauchen.
+    const configuredDoors = window.DOORS || [];
+    const seen = new Set();
+    const rows = configuredDoors.map((cfg) => {
+      seen.add(cfg.id);
+      return makeComparisonRow(cfg.id, doors[cfg.id], cfg);
+    });
+
+    // Alte Ereignisse zu Produkten, die es in config.js nicht mehr gibt,
+    // trotzdem anzeigen statt sie stillschweigend zu verwerfen.
+    realDoorIds(doors).forEach((id) => {
+      if (seen.has(id)) return;
+      rows.push(makeComparisonRow(id, doors[id], null));
+    });
+
+    const withData = rows.filter((r) => r.reach > 0);
+    const avgConversion = withData.length
+      ? withData.reduce((sum, r) => sum + r.conversion, 0) / withData.length
+      : null;
+    rows.forEach((r) => { r.avgConversion = avgConversion; r.comparable = withData.length >= 2; });
+
+    // Produkte mit Daten zuerst (beste Conversion oben), Produkte ganz ohne
+    // Aufrufe ans Ende -- die lassen sich noch nicht bewerten.
+    rows.sort((a, b) => {
+      if (a.reach === 0 && b.reach === 0) return 0;
+      if (a.reach === 0) return 1;
+      if (b.reach === 0) return -1;
+      return b.conversion - a.conversion;
+    });
+    return rows;
+  }
+
+  function renderKpis(data, rows) {
     document.getElementById("kpiEvents").textContent = data.totalEvents.toLocaleString("de-DE");
     document.getElementById("kpiEmails").textContent = data.totalEmails.toLocaleString("de-DE");
     document.getElementById("kpiDuration").textContent = formatDuration(data.avgDurationSeconds);
-    document.getElementById("kpiDoors").textContent = realDoorIds(data.doors || {}).length.toLocaleString("de-DE");
+    // Anzahl der konfigurierten Produkte (js/config.js) -- nicht nur die,
+    // für die schon Daten vorliegen.
+    document.getElementById("kpiDoors").textContent = (window.DOORS || []).length.toLocaleString("de-DE");
+
+    const best = rows.find((r) => r.reach > 0);
+    const bestEl = document.getElementById("kpiBest");
+    const bestSubEl = document.getElementById("kpiBestSub");
+    if (best) {
+      bestEl.textContent = best.title;
+      bestSubEl.textContent = Math.round(best.conversion * 100) + "% Gesamt-Conversion";
+    } else {
+      bestEl.textContent = "–";
+      bestSubEl.textContent = "Noch keine Daten";
+    }
+  }
+
+  function renderComparison(rows) {
+    const wrap = document.getElementById("compareGrid");
+    if (rows.length === 0) {
+      wrap.innerHTML = '<div class="empty-state">Noch keine Produkte in js/config.js eingetragen.</div>';
+      return;
+    }
+
+    const medals = ["🥇", "🥈", "🥉"];
+    let rank = 0;
+
+    wrap.innerHTML = rows.map((r) => {
+      const medal = r.reach > 0 && rank < 3 ? medals[rank] : "";
+      if (r.reach > 0) rank++;
+
+      let status = "";
+      if (r.reach === 0) {
+        status = '<span class="compare-status neutral">Noch keine Daten</span>';
+      } else if (r.comparable) {
+        if (r.conversion > r.avgConversion * 1.05) {
+          status = '<span class="compare-status good">✓ Überdurchschnittlich</span>';
+        } else if (r.conversion < r.avgConversion * 0.95) {
+          status = '<span class="compare-status warning">⚠ Unterdurchschnittlich</span>';
+        } else {
+          status = '<span class="compare-status neutral">≈ Durchschnitt</span>';
+        }
+      }
+
+      const stages = [
+        { label: "Ansicht", value: r.impressions },
+        { label: "Klick", value: r.clicks },
+        { label: "Seite", value: r.pageViews },
+        { label: "Popup", value: r.reserves },
+        { label: "E-Mail", value: r.emails },
+      ];
+      const maxStage = Math.max(1, ...stages.map((s) => s.value));
+      const abandonRate = r.reserves ? Math.round((r.abandons / r.reserves) * 100) : null;
+
+      return `
+        <div class="compare-card">
+          ${medal ? `<div class="compare-rank">${medal}</div>` : ""}
+          <div class="compare-header">
+            <div class="compare-thumb">${thumbHtml(r)}</div>
+            <div class="compare-heading">
+              <h3>${escapeHtml(r.title)}</h3>
+              ${r.price ? `<div class="compare-price">${escapeHtml(r.price)}</div>` : ""}
+            </div>
+          </div>
+          ${status}
+          ${r.reach > 0 ? `
+            <div class="compare-score">
+              <span class="compare-score-value">${Math.round(r.conversion * 100)}%</span>
+              <span class="compare-score-label">Gesamt-Conversion (Seitenaufruf → E-Mail)</span>
+            </div>
+            <div class="mini-funnel">
+              ${stages.map((s) => `
+                <div class="mini-funnel-row">
+                  <div class="mf-label">${escapeHtml(s.label)}</div>
+                  <div class="mini-funnel-track"><div class="mini-funnel-fill" style="width:${Math.max((s.value / maxStage) * 100, s.value > 0 ? 4 : 0)}%"></div></div>
+                  <div class="mf-value">${s.value}</div>
+                </div>
+              `).join("")}
+            </div>
+            <div class="compare-footer">
+              Ø Verweildauer auf der Produktseite: <strong>${formatDuration(r.avgDurationSeconds)}</strong>
+              ${r.reserves > 0 ? `<br>Im Popup abgebrochen: <strong>${r.abandons} von ${r.reserves}</strong>${abandonRate !== null ? ` (${abandonRate}%)` : ""}` : ""}
+            </div>
+          ` : `
+            <p class="compare-empty">Noch niemand hat diese Produktseite aufgerufen.</p>
+          `}
+        </div>
+      `;
+    }).join("");
   }
 
   function renderFunnel(data) {
@@ -105,82 +268,26 @@
     }).join("");
   }
 
-  function renderDoorBars(data) {
-    const wrap = document.getElementById("doorBars");
-    const doors = data.doors || {};
-    const rows = realDoorIds(doors).map((id) => ({
-      id, title: doors[id].title || id, clicks: doors[id].counts.door_click || 0,
-    })).sort((a, b) => b.clicks - a.clicks);
-
-    if (rows.length === 0) {
-      wrap.innerHTML = '<div class="empty-state">Noch keine Klicks erfasst.</div>';
-      return;
-    }
-    const max = Math.max(1, ...rows.map((r) => r.clicks));
-    wrap.innerHTML = rows.map((r) => `
-      <div class="funnel-row">
-        <div class="funnel-label">${escapeHtml(r.title)}</div>
-        <div class="funnel-track">
-          <div class="funnel-fill" style="width:${Math.max((r.clicks / max) * 100, r.clicks > 0 ? 3 : 0)}%; background-color: var(--brand);" title="${escapeHtml(r.title)}: ${r.clicks} Klicks"></div>
-        </div>
-        <div class="funnel-value">${r.clicks.toLocaleString("de-DE")}</div>
-      </div>
-    `).join("");
-  }
-
-  function renderDurationBars(data) {
-    const wrap = document.getElementById("durationBars");
-    const doors = data.doors || {};
-    const rows = realDoorIds(doors).map((id) => ({
-      id, title: doors[id].title || id, avg: doors[id].avgDurationSeconds || 0,
-    })).sort((a, b) => b.avg - a.avg);
-
-    if (rows.length === 0 || rows.every((r) => r.avg === 0)) {
-      wrap.innerHTML = '<div class="empty-state">Noch keine Verweildauer-Daten (mind. ein Seitenaufruf muss beendet werden).</div>';
-      return;
-    }
-    const max = Math.max(1, ...rows.map((r) => r.avg));
-    wrap.innerHTML = rows.map((r) => `
-      <div class="funnel-row">
-        <div class="funnel-label">${escapeHtml(r.title)}</div>
-        <div class="funnel-track">
-          <div class="funnel-fill" style="width:${Math.max((r.avg / max) * 100, r.avg > 0 ? 3 : 0)}%; background-color: var(--brand);" title="${escapeHtml(r.title)}: ${formatDuration(r.avg)}"></div>
-        </div>
-        <div class="funnel-value">${formatDuration(r.avg)}</div>
-      </div>
-    `).join("");
-  }
-
-  function renderTable(data) {
+  function renderTable(rows) {
     const tbody = document.querySelector("#doorTable tbody");
-    const doors = data.doors || {};
-    const ids = realDoorIds(doors);
-    if (ids.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Noch keine Daten.</td></tr>';
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="10" class="empty-state">Noch keine Daten.</td></tr>';
       return;
     }
-    tbody.innerHTML = ids.map((id) => {
-      const d = doors[id];
-      const c = d.counts;
-      const impressions = c.door_impression || 0;
-      const clicks = c.door_click || 0;
-      const pageViews = c.page_view || 0;
-      const reserve = c.reserve_click || 0;
-      const emails = c.email_submit || 0;
-      const rate = clicks ? Math.round((emails / clicks) * 100) : 0;
-      return `
-        <tr>
-          <td>${escapeHtml(d.title || id)}</td>
-          <td>${impressions}</td>
-          <td>${clicks}</td>
-          <td>${pageViews}</td>
-          <td>${reserve}</td>
-          <td>${emails}</td>
-          <td>${rate}%</td>
-          <td>${formatDuration(d.avgDurationSeconds || 0)}</td>
-        </tr>
-      `;
-    }).join("");
+    tbody.innerHTML = rows.map((r) => `
+      <tr>
+        <td>${escapeHtml(r.title)}</td>
+        <td>${r.price ? escapeHtml(r.price) : "–"}</td>
+        <td>${r.impressions}</td>
+        <td>${r.clicks}</td>
+        <td>${r.pageViews}</td>
+        <td>${r.reserves}</td>
+        <td>${r.abandons}</td>
+        <td>${r.emails}</td>
+        <td>${r.reach ? Math.round(r.conversion * 100) + "%" : "–"}</td>
+        <td>${formatDuration(r.avgDurationSeconds)}</td>
+      </tr>
+    `).join("");
   }
 
   function downloadCsv() {
@@ -199,11 +306,11 @@
   }
 
   function render(data) {
-    renderKpis(data);
+    const rows = buildComparison(data.doors || {});
+    renderKpis(data, rows);
     renderFunnel(data);
-    renderDoorBars(data);
-    renderDurationBars(data);
-    renderTable(data);
+    renderComparison(rows);
+    renderTable(rows);
   }
 
   function showSourceNote(text, isWarning) {

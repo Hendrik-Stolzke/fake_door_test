@@ -1,12 +1,18 @@
 /* =====================================================================
    PRODUCT.JS – für produkt.html: liest ?id=... aus der URL, zeigt Bild,
-   Text und Preis der passenden Tür aus DOORS, und steuert den
-   "Vormerken"-Ablauf (Button -> E-Mail-Formular -> Danke). Kein Modal,
-   kein Fake-Zahlungsformular -- alles läuft direkt auf der Seite ab.
+   Text und Preis der passenden Tür aus DOORS. Der Button "Verfügbarkeit
+   prüfen" öffnet ein Popup mit dem E-Mail-Formular. Getrackt wird nicht
+   nur der Abschluss (email_submit), sondern auch, wenn jemand das Popup
+   wieder schließt, OHNE eine E-Mail zu hinterlassen (email_modal_abandon,
+   inkl. Sekunden bis zum Abbruch) -- so lässt sich sehen, wie viele
+   Leute im Popup abspringen statt durchzugehen.
    ===================================================================== */
 
 (function () {
   "use strict";
+
+  let modalOpenedAt = null;
+  let submitted = false;
 
   function escapeHtml(str) {
     return String(str == null ? "" : str).replace(/[&<>"']/g, (c) => ({
@@ -50,21 +56,51 @@
     document.title = document.title.replace("{{productTitle}}", door.title);
 
     document.getElementById("reserveButton").textContent = SITE_CONFIG.reserveButtonText;
+    document.getElementById("modalProductTitle").textContent = door.title;
+    document.getElementById("modalProductPrice").textContent = door.price;
+    document.getElementById("modalThumb").innerHTML = mediaHtml(door);
     document.getElementById("reserveFormTitleText").textContent = SITE_CONFIG.reserveFormTitle;
     document.getElementById("reserveFormText").textContent = SITE_CONFIG.reserveFormText;
     document.getElementById("emailInput").placeholder = SITE_CONFIG.emailPlaceholder;
     document.getElementById("reserveSubmitBtn").textContent = SITE_CONFIG.reserveSubmitText;
+    document.getElementById("cancelReserveBtn").textContent = SITE_CONFIG.reserveCancelText;
     document.getElementById("reserveThanksTitleText").textContent = SITE_CONFIG.reserveThanksTitle;
     document.getElementById("reserveThanksTextText").textContent = SITE_CONFIG.reserveThanksText;
   }
 
-  function handleReserveClick(door) {
+  // ---------------------------------------------------------------
+  // Popup öffnen/schließen
+  // ---------------------------------------------------------------
+  function openModal() {
     FDT.track("reserve_click");
+
     showStep("stepEmail");
+    document.getElementById("emailForm").reset();
+    const msg = document.getElementById("emailFormMsg");
+    if (msg) { msg.className = "form-msg"; msg.textContent = ""; }
+
+    document.getElementById("availabilityOverlay").classList.add("open");
+    modalOpenedAt = Date.now();
+    submitted = false;
     document.getElementById("emailInput")?.focus();
   }
 
-  function handleEmailSubmit(e, door) {
+  function closeModal(reason) {
+    const overlay = document.getElementById("availabilityOverlay");
+    if (!overlay.classList.contains("open")) return;
+    overlay.classList.remove("open");
+
+    // Nur als Abbruch zählen, wenn NICHT gerade erfolgreich abgeschlossen
+    // wurde -- sonst würde das Schließen nach "Danke" fälschlich als
+    // Absprung gewertet.
+    if (!submitted && modalOpenedAt) {
+      const seconds = Math.round((Date.now() - modalOpenedAt) / 1000);
+      FDT.track("email_modal_abandon", { value: seconds, reason: reason || "close_button" });
+    }
+    modalOpenedAt = null;
+  }
+
+  function handleEmailSubmit(e) {
     e.preventDefault();
     const input = document.getElementById("emailInput");
     const consentCheck = document.getElementById("emailConsentCheck");
@@ -87,7 +123,9 @@
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner"></span>';
 
-    FDT.track("email_submit", { email: email });
+    const seconds = modalOpenedAt ? Math.round((Date.now() - modalOpenedAt) / 1000) : 0;
+    FDT.track("email_submit", { email: email, value: seconds });
+    submitted = true;
 
     setTimeout(() => {
       btn.disabled = false;
@@ -118,9 +156,21 @@
     renderProduct(door);
     document.getElementById("productLoaded").style.display = "block";
 
-    document.getElementById("reserveButton").addEventListener("click", () => handleReserveClick(door));
-    document.getElementById("emailForm").addEventListener("submit", (e) => handleEmailSubmit(e, door));
-    document.getElementById("backToReserveBtn")?.addEventListener("click", () => showStep("stepReserve"));
+    document.getElementById("reserveButton").addEventListener("click", openModal);
+    document.getElementById("emailForm").addEventListener("submit", handleEmailSubmit);
+
+    document.getElementById("availabilityOverlay").addEventListener("click", (e) => {
+      if (e.target.id === "availabilityOverlay") closeModal("backdrop");
+    });
+    document.querySelectorAll("[data-close-modal]").forEach((btn) => {
+      btn.addEventListener("click", () => closeModal("close_button"));
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal("escape_key");
+    });
+    // Falls die Seite verlassen wird, während das Popup noch offen ist
+    // (z.B. Tab geschlossen), trotzdem als Abbruch zählen.
+    window.addEventListener("pagehide", () => closeModal("page_unload"));
   }
 
   init();

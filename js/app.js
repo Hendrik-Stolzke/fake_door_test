@@ -1,6 +1,6 @@
 /* =====================================================================
    APP.JS – rendert Türen (als Links auf produkt.html) und Team aus
-   config.js. Der eigentliche "Vormerken"-Ablauf lebt in js/product.js
+   config.js. Der Button "Verfügbarkeit prüfen" und das Popup leben in js/product.js
    auf der jeweiligen Produktseite.
    ===================================================================== */
 

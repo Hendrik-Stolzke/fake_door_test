@@ -53,8 +53,10 @@ const SITE_CONFIG = {
   // Tracking über das Google Sheet funktioniert trotzdem.
   gaMeasurementId: "",
 
-  // ---- "Vormerken"-Button auf der Produktseite ---------------------
-  reserveButtonText: "Vormerken",
+  // ---- "Verfügbarkeit prüfen"-Button auf der Produktseite ----------
+  // Öffnet ein Popup mit dem E-Mail-Formular (statt direkt auf der Seite).
+  reserveButtonText: "Verfügbarkeit prüfen",
+  reserveCancelText: "Abbrechen",
   reserveFormTitle: "Fast geschafft!",
   reserveFormText: "Dieses Produkt ist noch in Arbeit und aktuell nicht verfügbar. Trag deine E-Mail ein und wir benachrichtigen dich, sobald es startet.",
   emailPlaceholder: "du@beispiel.de",
@@ -75,8 +77,8 @@ const SITE_CONFIG = {
 /* =====================================================================
    DIE TÜREN ("Fake Doors")
    Jeder Block { ... } ist EIN Produkt/EINE Idee, die getestet wird und eine
-   eigene Seite bekommt (produkt.html?id=...) mit Bild, Text und
-   "Vormerken"-Button.
+   eigene Seite bekommt (produkt.html?id=...) mit Bild, Text und dem Button
+   "Verfügbarkeit prüfen" (öffnet ein Popup mit E-Mail-Formular).
    Du kannst beliebig viele hinzufügen oder löschen – kopiere dafür
    einfach einen kompletten Block inklusive der geschweiften Klammern
    { } und der Endkomma, und ändere die Werte.

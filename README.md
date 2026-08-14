@@ -4,10 +4,11 @@ Eine fertige, kostenlose Website, um mehrere Produktideen gleichzeitig zu testen
 aufgebaut nach Simon Sineks **Golden Circle** ("Start With Why"): Die Startseite
 erklärt zuerst **Warum** es das Projekt gibt, dann **Wie** ihr das anders macht,
 und erst danach **Was** ihr konkret anbietet (die "Türen"). Jede Tür bekommt eine
-**eigene Produktseite** mit Bild, Text und einem **"Vormerken"-Button** -- kein
-Fake-Zahlungsformular, kein Modal. Klicks auf "Vormerken" führen direkt zu einem
+**eigene Produktseite** mit Bild, Text und einem **"Verfügbarkeit prüfen"-Button**
+-- kein Fake-Zahlungsformular. Der Klick öffnet ein **Popup** mit dem
 E-Mail-Formular ("benachrichtige mich beim Launch"). Jeder Klick, jeder
-Seitenaufruf und jede Verweildauer wird automatisch getrackt -- **pro Produkt
+Seitenaufruf, jede Verweildauer UND jedes abgebrochene Popup (jemand öffnet es,
+trägt aber keine E-Mail ein) wird automatisch getrackt -- **pro Produkt
 getrennt**, damit sich Produkte klar voneinander unterscheiden lassen.
 
 Keine Programmierkenntnisse nötig, um Inhalte zu ändern – nur eine Datei
@@ -19,7 +20,7 @@ Keine Programmierkenntnisse nötig, um Inhalte zu ändern – nur eine Datei
 
 ```
 index.html          Startseite: Warum -> Wie -> Was (die Türen)
-produkt.html         Eigene Seite JEDER Tür (produkt.html?id=...), mit Vormerken-Button
+produkt.html         Eigene Seite JEDER Tür (produkt.html?id=...), mit "Verfügbarkeit prüfen"-Popup
 team.html            Team-Seite
 impressum.html       Impressum (Pflichtangaben)
 datenschutz.html     Datenschutzerklärung
@@ -28,7 +29,7 @@ css/style.css        Design (Farben, Layout)
 js/config.js         ★ DIE DATEI, DIE DU BEARBEITEST ★ – Türen, Team, Texte, Tracking-Links
 js/tracking.js        Tracking-Logik (Consent, Events, Verweildauer -- pro Seite/Produkt)
 js/app.js             Rendert Startseite (Warum/Wie/Was) und Team
-js/product.js          Rendert produkt.html und steuert den Vormerken-Ablauf
+js/product.js          Rendert produkt.html und steuert das Popup (öffnen/abbrechen/abschließen)
 js/stats.js            Rendert das Dashboard auf auswertung.html
 backend/AppsScript.gs  Code für dein kostenloses Google-Sheet-Backend
 ```
@@ -83,11 +84,12 @@ nach Simon Sineks "Start With Why"-Prinzip:
 - **`whatTitle` / `whatText`** -- die Überschrift direkt über den Produktkarten:
   WAS ihr konkret anbietet (das sind die Türen weiter unten in `DOORS`).
 
-### "Vormerken"-Texte auf der Produktseite
+### Texte für den "Verfügbarkeit prüfen"-Button & das Popup
 
-Ebenfalls in `SITE_CONFIG`: `reserveButtonText` (der Button neben Bild & Text),
-`reserveFormTitle`/`reserveFormText` (Überschrift/Text des E-Mail-Formulars, das
-sich nach Klick auf "Vormerken" öffnet), `reserveSubmitText`,
+Ebenfalls in `SITE_CONFIG`: `reserveButtonText` (der Button neben Bild & Text,
+Standard "Verfügbarkeit prüfen"), `reserveFormTitle`/`reserveFormText`
+(Überschrift/Text im Popup, das sich nach dem Klick öffnet), `reserveSubmitText`
+(Absenden-Button im Popup), `reserveCancelText` (Abbrechen-Button im Popup),
 `reserveThanksTitle`/`reserveThanksText` (Dankes-Nachricht danach).
 
 ### Farben
@@ -192,13 +194,22 @@ Datenbank nötig) – jeder dieser Anbieter reicht aus, es fallen keine Kosten a
 
 Zwei Wege, dieselben Daten zu sehen:
 
-1. **`auswertung.html`** auf deiner Live-Seite – automatisches Dashboard mit
-   Gesamt-Funnel (Ansicht → Klick → Produktseite → Vormerken → E-Mail), Ranking
-   der Produkte nach Klicks, Ranking nach **Verweildauer je Produkt**, und einer
-   Detailtabelle mit Conversion-Raten je Produkt.
+1. **`auswertung.html`** auf deiner Live-Seite – automatisches Dashboard mit:
+   - einem **Produktvergleich**: eine Karte pro Produkt (inkl. Preis aus
+     `js/config.js`), sortiert vom besten zum schwächsten, mit
+     Mini-Funnel (zeigt genau, an welcher Stufe die meisten abspringen) und
+     einer einfachen Einstufung "über-/unterdurchschnittlich" im Vergleich
+     zu den anderen Produkten -- Produkte ganz ohne Aufrufe werden explizit
+     als "noch keine Daten" angezeigt, statt zu fehlen,
+   - einem **Gesamt-Funnel** (Ansicht → Klick → Produktseite → Popup geöffnet → E-Mail) über alle Produkte hinweg,
+   - einer **Detailtabelle** mit allen Rohzahlen inkl. Preis und Popup-Abbrüchen zum Nachlesen/Exportieren.
 2. **Das Google Sheet selbst** – jede einzelne Zeile mit Zeitstempel,
    Ereignistyp, Produkt, Sitzungs-ID und ggf. E-Mail-Adresse. Gut für eigene
    Pivot-Tabellen/Diagramme.
+
+Die Preis-Angabe kommt direkt aus `js/config.js` (kein Tracking-Backend-Update
+nötig) -- so lässt sich auf einen Blick erkennen, ob z. B. das teuerste Produkt
+auch das mit dem geringsten Interesse ist.
 
 ### Diese Ereignisse werden getrackt -- pro Produkt getrennt
 
@@ -207,9 +218,15 @@ Zwei Wege, dieselben Daten zu sehen:
 | `door_impression` | Produktkarte auf der Startseite wurde sichtbar | Startseite |
 | `door_click` | Klick auf "Zum Produkt" | Startseite |
 | `page_view` | Seitenaufruf -- auf `produkt.html` automatisch mit der jeweiligen Produkt-ID versehen | jede Seite |
-| `reserve_click` | Klick auf "Vormerken" | Produktseite |
-| `email_submit` | E-Mail-Adresse wurde hinterlassen | Produktseite |
+| `reserve_click` | Klick auf "Verfügbarkeit prüfen" -- öffnet das Popup | Produktseite |
+| `email_modal_abandon` | Popup wieder geschlossen, OHNE eine E-Mail einzutragen (mit Sekunden bis zum Abbruch als `value` und `reason`: `close_button`/`backdrop`/`escape_key`/`page_unload`) | Produktseite |
+| `email_submit` | E-Mail-Adresse im Popup wurde hinterlassen (mit Sekunden bis zum Abschluss als `value`) | Produktseite |
 | `page_duration` | Verweildauer in Sekunden -- auf `produkt.html` ebenfalls automatisch dem Produkt zugeordnet | jede Seite |
+
+`reserve_click` und `email_submit` zusammen zeigen, wie viele das Popup öffnen
+und wie viele davon tatsächlich abschließen -- `email_modal_abandon` macht die
+Differenz explizit sichtbar (statt sie nur indirekt zu erschließen) und verrät
+zusätzlich, wie lange jemand im Popup war, bevor er abgesprungen ist.
 
 Weil `page_view` und `page_duration` auf der Produktseite automatisch die
 jeweilige Produkt-ID mitbekommen (siehe `FDT.setContext(...)` in
@@ -321,13 +338,17 @@ hakt.
 
 ---
 
-## 10. Warum "Vormerken" statt Fake-Checkout?
+## 10. Warum "Verfügbarkeit prüfen" statt Fake-Checkout?
 
 Diese Variante des Fake-Door-Tests verzichtet bewusst auf ein simuliertes
 Zahlungsformular. Statt Interessierte glauben zu lassen, sie würden gleich
 etwas kaufen, ist die Ansage von Anfang an ehrlich: "Dieses Produkt gibt es
-noch nicht -- trag dich ein, wenn du benachrichtigt werden willst." Ein Klick
-auf "Vormerken" ist trotzdem ein echtes, aussagekräftiges Signal für
-Kaufinteresse -- kombiniert mit der Verweildauer auf der Produktseite (siehe
-Abschnitt 7) bekommst du sogar zwei unabhängige Signale, ganz ohne
-Kreditkarten-Theater.
+noch nicht -- trag dich ein, wenn du benachrichtigt werden willst." Der Klick
+auf "Verfügbarkeit prüfen" ist trotzdem ein echtes, aussagekräftiges Signal
+für Kaufinteresse -- kombiniert mit der Verweildauer auf der Produktseite und
+der Popup-Abbruchrate (siehe Abschnitt 7) bekommst du gleich drei unabhängige
+Signale, ganz ohne Kreditkarten-Theater. Dass das Formular als Popup statt
+direkt auf der Seite erscheint, hat einen praktischen Grund: Wer es wieder
+schließt, ohne etwas einzutragen, bleibt auf derselben Produktseite -- dieser
+Abbruch lässt sich dadurch sauber als eigenes Ereignis erfassen, statt in der
+allgemeinen Verweildauer unterzugehen.

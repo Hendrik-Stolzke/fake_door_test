@@ -26,13 +26,14 @@
 <div class="page-content">
   <div class="container">
     <h1>Auswertung</h1>
-    <p class="lead">Live-Ergebnisse deines Fake-Door-Tests: welche Tür wird geklickt, wie lange bleiben Besucher:innen auf der jeweiligen Produktseite, wer merkt sich ein Produkt vor.</p>
+    <p class="lead">Live-Vergleich deines Fake-Door-Tests: welches Produkt funktioniert am besten, welches nicht -- inklusive Preis, damit sich Muster leicht erkennen lassen.</p>
     <p class="source-note" id="sourceNote"></p>
 
     <div class="kpi-row">
-      <div class="kpi-tile">
-        <div class="kpi-label">Ereignisse gesamt</div>
-        <div class="kpi-value" id="kpiEvents">0</div>
+      <div class="kpi-tile kpi-tile-wide">
+        <div class="kpi-label">Bestes Produkt</div>
+        <div class="kpi-value kpi-value-text" id="kpiBest">–</div>
+        <div class="kpi-sub" id="kpiBestSub">Noch keine Daten</div>
       </div>
       <div class="kpi-tile">
         <div class="kpi-label">Getestete Produkte</div>
@@ -46,40 +47,47 @@
         <div class="kpi-label">Ø Verweildauer</div>
         <div class="kpi-value" id="kpiDuration">0s</div>
       </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">Ereignisse gesamt</div>
+        <div class="kpi-value" id="kpiEvents">0</div>
+      </div>
+    </div>
+
+    <div class="viz-card">
+      <h2>Produktvergleich</h2>
+      <p class="viz-sub">
+        Ein Produkt pro Karte, sortiert vom besten zum schwächsten. <strong>Gesamt-Conversion</strong> zeigt,
+        wie viel Prozent aller Besucher:innen der Produktseite am Ende im Popup "Verfügbarkeit prüfen"
+        ihre E-Mail hinterlassen haben -- die Balken darunter zeigen genau, an welcher Stufe die meisten
+        abspringen, inklusive wie viele das Popup öffnen, aber ohne E-Mail wieder schließen. Die Einstufung
+        (über-/unterdurchschnittlich) vergleicht ein Produkt mit dem Schnitt der anderen getesteten Produkte.
+        Preis steht direkt dabei, um Zusammenhänge zwischen Preis und Interesse leicht zu erkennen.
+      </p>
+      <div id="compareGrid" class="compare-grid"></div>
     </div>
 
     <div class="viz-card">
       <h2>Gesamt-Funnel</h2>
-      <p class="viz-sub">Wie viele Besucher:innen erreichen jede Stufe -- von der Startseite über die eigene Produktseite bis zum Vormerken (über alle Produkte hinweg)?</p>
+      <p class="viz-sub">Wie viele Besucher:innen erreichen jede Stufe -- von der Startseite über die eigene Produktseite bis zum geöffneten Popup (über alle Produkte hinweg)?</p>
       <div id="funnelChart"></div>
     </div>
 
     <div class="viz-card">
-      <h2>Klicks je Produkt</h2>
-      <p class="viz-sub">Welche Tür interessiert am meisten? Sortiert nach Klicks auf "Zum Produkt".</p>
-      <div id="doorBars"></div>
-    </div>
-
-    <div class="viz-card">
-      <h2>Verweildauer je Produkt</h2>
-      <p class="viz-sub">Wie lange bleiben Besucher:innen auf der jeweiligen Produktseite? Ein starkes, unabhängiges Signal zusätzlich zu den Klicks -- wer liest, ist ernsthafter interessiert als wer nur kurz reinschaut.</p>
-      <div id="durationBars"></div>
-    </div>
-
-    <div class="viz-card">
       <h2>Detailtabelle je Produkt</h2>
-      <p class="viz-sub">Klick→E-Mail-Rate zeigt, wie viele der Klickenden am Ende ihre E-Mail-Adresse hinterlassen haben.</p>
+      <p class="viz-sub">Alle Zahlen aus dem Produktvergleich oben, als Tabelle zum genauen Nachlesen oder Exportieren.</p>
       <div class="data-table-wrap">
         <table class="data-table" id="doorTable">
           <thead>
             <tr>
               <th>Produkt</th>
+              <th>Preis</th>
               <th>Ansichten</th>
               <th>Klicks</th>
               <th>Produktseite</th>
-              <th>Vormerken</th>
+              <th>Popup geöffnet</th>
+              <th>Abgebrochen</th>
               <th>E-Mails</th>
-              <th>Klick→E-Mail</th>
+              <th>Gesamt-Conversion</th>
               <th>Ø Verweildauer</th>
             </tr>
           </thead>

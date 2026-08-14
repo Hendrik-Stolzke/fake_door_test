@@ -43,40 +43,54 @@
         <p class="product-description" id="productDescription"></p>
         <div class="product-price" id="productPrice"></div>
 
-        <div class="step active" id="stepReserve">
-          <button type="button" class="btn btn-primary" id="reserveButton">Vormerken</button>
-        </div>
-
-        <div class="step" id="stepEmail">
-          <h3 class="reveal-title" id="reserveFormTitleText"></h3>
-          <p class="reveal-text" id="reserveFormText"></p>
-          <form id="emailForm">
-            <div class="field">
-              <label for="emailInput" class="visually-hidden">E-Mail-Adresse</label>
-              <input type="email" id="emailInput" required placeholder="du@beispiel.de">
-            </div>
-            <label class="consent-line">
-              <input type="checkbox" id="emailConsentCheck">
-              <span>Ich bin einverstanden, dass meine E-Mail-Adresse gespeichert wird, um mich über den Launch zu informieren. Mehr dazu in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span>
-            </label>
-            <button type="submit" class="btn btn-primary btn-block" id="reserveSubmitBtn">Vormerken bestätigen</button>
-            <div class="form-msg" id="emailFormMsg"></div>
-          </form>
-          <p style="margin-top:10px;">
-            <button type="button" class="btn btn-ghost" id="backToReserveBtn" style="font-size:0.8rem; padding:6px 12px;">Zurück</button>
-          </p>
-        </div>
-
-        <div class="step" id="stepThanks">
-          <div class="thanks-box">
-            <div class="reveal-icon">🎉</div>
-            <h3 class="reveal-title" id="reserveThanksTitleText"></h3>
-            <p class="reveal-text" id="reserveThanksTextText"></p>
-          </div>
-        </div>
+        <button type="button" class="btn btn-primary" id="reserveButton">Verfügbarkeit prüfen</button>
       </div>
     </div>
   </section>
+</div>
+
+<!-- ============== POPUP: Verfügbarkeit prüfen / E-Mail hinterlassen ============== -->
+<div class="modal-overlay" id="availabilityOverlay">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-label="Verfügbarkeit prüfen">
+    <button type="button" class="modal-close" data-close-modal aria-label="Schließen">✕</button>
+
+    <div class="modal-product">
+      <div class="thumb" id="modalThumb"></div>
+      <div>
+        <h2 id="modalProductTitle"></h2>
+        <div class="price" id="modalProductPrice"></div>
+      </div>
+    </div>
+
+    <div class="step active" id="stepEmail">
+      <h3 class="reveal-title" id="reserveFormTitleText"></h3>
+      <p class="reveal-text" id="reserveFormText"></p>
+      <form id="emailForm">
+        <div class="field">
+          <label for="emailInput" class="visually-hidden">E-Mail-Adresse</label>
+          <input type="email" id="emailInput" required placeholder="du@beispiel.de">
+        </div>
+        <label class="consent-line">
+          <input type="checkbox" id="emailConsentCheck">
+          <span>Ich bin einverstanden, dass meine E-Mail-Adresse gespeichert wird, um mich über den Launch zu informieren. Mehr dazu in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span>
+        </label>
+        <button type="submit" class="btn btn-primary btn-block" id="reserveSubmitBtn">Vormerken bestätigen</button>
+        <div class="form-msg" id="emailFormMsg"></div>
+      </form>
+      <p style="text-align:center; margin-top:10px;">
+        <button type="button" class="btn btn-ghost" data-close-modal id="cancelReserveBtn" style="font-size:0.8rem; padding:6px 12px;">Abbrechen</button>
+      </p>
+    </div>
+
+    <div class="step" id="stepThanks">
+      <div class="thanks-box">
+        <div class="reveal-icon">🎉</div>
+        <h3 class="reveal-title" id="reserveThanksTitleText"></h3>
+        <p class="reveal-text" id="reserveThanksTextText"></p>
+        <button type="button" class="btn btn-ghost" data-close-modal>Schließen</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <footer class="site-footer">

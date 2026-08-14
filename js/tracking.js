@@ -1,7 +1,7 @@
 /* =====================================================================
    TRACKING-KERN
-   Zeichnet alle Events auf (Seitenaufruf, Klicks, Vormerken, E-Mail,
-   Verweildauer -- pro Seite/Produkt getrennt) und schickt sie:
+   Zeichnet alle Events auf (Seitenaufruf, Klicks, Popup geöffnet/abgebrochen,
+   E-Mail, Verweildauer -- pro Seite/Produkt getrennt) und schickt sie:
      1) an dein kostenloses Google Sheet (wenn trackingWebAppUrl gesetzt ist)
      2) an Google Analytics 4 (wenn gaMeasurementId gesetzt ist)
      3) IMMER zusätzlich lokal in den Browser-Speicher (localStorage),
