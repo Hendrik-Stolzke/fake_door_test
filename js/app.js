@@ -1,12 +1,12 @@
 /* =====================================================================
-   APP.JS – rendert Türen aus config.js, steuert Checkout-Modal & E-Mail-Formular
+   APP.JS – rendert Türen (als Links auf produkt.html) und Team aus
+   config.js. Der eigentliche "Vormerken"-Ablauf lebt in js/product.js
+   auf der jeweiligen Produktseite.
    ===================================================================== */
 
 (function () {
   "use strict";
 
-  let currentDoor = null;
-  let checkoutOpenedAt = null;
   const impressionsSeen = new Set();
 
   function applyBrandColors() {
@@ -40,7 +40,37 @@
   function escapeAttr(str) { return escapeHtml(str); }
 
   // -------------------------------------------------------------
-  // Türen rendern
+  // WARUM / WIE / WAS -- Golden-Circle-Texte auf der Startseite
+  // -------------------------------------------------------------
+  function renderGoldenCircle() {
+    const whyBadge = document.getElementById("whyBadge");
+    if (whyBadge) whyBadge.textContent = SITE_CONFIG.whyBadge;
+    const whyHeadline = document.getElementById("whyHeadline");
+    if (whyHeadline) whyHeadline.textContent = SITE_CONFIG.whyHeadline;
+    const whyText = document.getElementById("whyText");
+    if (whyText) whyText.textContent = SITE_CONFIG.whyText;
+
+    const howTitle = document.getElementById("howTitle");
+    if (howTitle) howTitle.textContent = SITE_CONFIG.howTitle;
+    const howGrid = document.getElementById("howGrid");
+    if (howGrid && Array.isArray(SITE_CONFIG.howPoints)) {
+      howGrid.innerHTML = SITE_CONFIG.howPoints.map((p) => `
+        <div class="how-card">
+          <div class="how-icon">${escapeHtml(p.emoji || "•")}</div>
+          <h3>${escapeHtml(p.title)}</h3>
+          <p>${escapeHtml(p.text)}</p>
+        </div>
+      `).join("");
+    }
+
+    const whatTitle = document.getElementById("whatTitle");
+    if (whatTitle) whatTitle.textContent = SITE_CONFIG.whatTitle;
+    const whatText = document.getElementById("whatText");
+    if (whatText) whatText.textContent = SITE_CONFIG.whatText;
+  }
+
+  // -------------------------------------------------------------
+  // Türen rendern -- jede Karte ist ein Link auf ihre eigene Seite
   // -------------------------------------------------------------
   function renderDoors() {
     const grid = document.getElementById("doorsGrid");
@@ -51,8 +81,8 @@
       return;
     }
 
-    grid.innerHTML = DOORS.map((door, i) => `
-      <article class="door-card" data-door-index="${i}" tabindex="0" role="button" aria-label="${escapeAttr(door.title)} ansehen">
+    grid.innerHTML = DOORS.map((door) => `
+      <a class="door-card" href="produkt.html?id=${encodeURIComponent(door.id)}" data-door-id="${escapeAttr(door.id)}">
         <div class="door-media">
           ${door.badge ? `<span class="door-badge">${escapeHtml(door.badge)}</span>` : ""}
           ${mediaHtml(door)}
@@ -62,23 +92,19 @@
           <p>${escapeHtml(door.description)}</p>
           <div class="door-footer">
             <span class="door-price">${escapeHtml(door.price)}</span>
-            <button type="button" class="btn btn-primary" data-door-index="${i}">Ansehen</button>
+            <span class="btn btn-primary">Zum Produkt</span>
           </div>
         </div>
-      </article>
+      </a>
     `).join("");
 
-    // Klicks
-    grid.querySelectorAll("[data-door-index]").forEach((el) => {
-      el.addEventListener("click", (e) => {
-        const idx = Number(el.getAttribute("data-door-index"));
-        openCheckout(idx);
-      });
-      el.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          openCheckout(Number(el.getAttribute("data-door-index")));
-        }
+    // Klick auf eine Tür tracken, BEVOR die normale Navigation zur
+    // Produktseite stattfindet (sendBeacon übersteht den Seitenwechsel).
+    grid.querySelectorAll("[data-door-id]").forEach((el) => {
+      el.addEventListener("click", () => {
+        const id = el.getAttribute("data-door-id");
+        const door = DOORS.find((d) => d.id === id);
+        if (door) FDT.track("door_click", { doorId: door.id, doorTitle: door.title });
       });
     });
 
@@ -93,8 +119,8 @@
       const io = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const idx = Number(entry.target.getAttribute("data-door-index"));
-            const door = DOORS[idx];
+            const id = entry.target.getAttribute("data-door-id");
+            const door = DOORS.find((d) => d.id === id);
             if (door && !impressionsSeen.has(door.id)) {
               impressionsSeen.add(door.id);
               FDT.track("door_impression", { doorId: door.id, doorTitle: door.title });
@@ -132,140 +158,14 @@
   }
 
   // -------------------------------------------------------------
-  // Checkout-Modal
-  // -------------------------------------------------------------
-  function openCheckout(index) {
-    currentDoor = DOORS[index];
-    if (!currentDoor) return;
-
-    FDT.track("door_click", { doorId: currentDoor.id, doorTitle: currentDoor.title });
-
-    document.querySelectorAll("[data-modal-title]").forEach((el) => (el.textContent = currentDoor.title));
-    document.querySelectorAll("[data-modal-price]").forEach((el) => (el.textContent = currentDoor.price));
-    document.querySelectorAll("[data-modal-thumb]").forEach((el) => (el.innerHTML = mediaHtml(currentDoor)));
-    const buyBtn = document.getElementById("buyButton");
-    if (buyBtn) buyBtn.textContent = "Jetzt kaufen für " + currentDoor.price;
-
-    showStep("stepPay");
-    const overlay = document.getElementById("checkoutOverlay");
-    overlay.classList.add("open");
-    checkoutOpenedAt = Date.now();
-    FDT.track("checkout_open", { doorId: currentDoor.id, doorTitle: currentDoor.title });
-
-    resetEmailForm();
-    document.getElementById("payForm-cardnumber")?.focus();
-  }
-
-  function closeCheckout(reason) {
-    const overlay = document.getElementById("checkoutOverlay");
-    if (!overlay.classList.contains("open")) return;
-    overlay.classList.remove("open");
-    if (currentDoor && checkoutOpenedAt) {
-      const seconds = Math.round((Date.now() - checkoutOpenedAt) / 1000);
-      FDT.track("checkout_close", { doorId: currentDoor.id, doorTitle: currentDoor.title, value: seconds, reason: reason || "close_button" });
-    }
-    checkoutOpenedAt = null;
-    currentDoor = null;
-  }
-
-  function showStep(stepId) {
-    document.querySelectorAll(".step").forEach((el) => el.classList.remove("active"));
-    document.getElementById(stepId)?.classList.add("active");
-  }
-
-  function handleBuyClick() {
-    if (!currentDoor) return;
-    const buyBtn = document.getElementById("buyButton");
-    const originalText = buyBtn.textContent;
-    buyBtn.disabled = true;
-    buyBtn.innerHTML = '<span class="spinner"></span> Wird verarbeitet …';
-
-    FDT.track("payment_attempt", { doorId: currentDoor.id, doorTitle: currentDoor.title });
-
-    // Kurze, realistische "Verarbeitung" -- rein visuell, es wird nichts
-    // abgebucht und es werden keine eingegebenen Kartendaten irgendwohin
-    // gesendet oder gespeichert.
-    setTimeout(() => {
-      buyBtn.disabled = false;
-      buyBtn.textContent = originalText;
-
-      document.getElementById("emailPromptTitle").textContent = SITE_CONFIG.emailPromptTitle;
-      document.getElementById("emailPromptText").textContent = SITE_CONFIG.emailPromptText;
-      document.getElementById("emailInput").placeholder = SITE_CONFIG.emailPlaceholder;
-      document.getElementById("emailSubmitBtn").textContent = SITE_CONFIG.emailButtonText;
-
-      showStep("stepEmail");
-      FDT.track("paywall_shown", { doorId: currentDoor.id, doorTitle: currentDoor.title });
-    }, 900);
-  }
-
-  function resetEmailForm() {
-    const form = document.getElementById("emailForm");
-    if (form) form.reset();
-    const msg = document.getElementById("emailFormMsg");
-    if (msg) { msg.className = "form-msg"; msg.textContent = ""; }
-    showStep("stepPay");
-  }
-
-  function handleEmailSubmit(e) {
-    e.preventDefault();
-    const input = document.getElementById("emailInput");
-    const consentCheck = document.getElementById("emailConsentCheck");
-    const msg = document.getElementById("emailFormMsg");
-    const email = input.value.trim();
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailPattern.test(email)) {
-      msg.textContent = "Bitte gib eine gültige E-Mail-Adresse ein.";
-      msg.className = "form-msg show error";
-      return;
-    }
-    if (!consentCheck.checked) {
-      msg.textContent = "Bitte stimme der Speicherung deiner E-Mail-Adresse zu.";
-      msg.className = "form-msg show error";
-      return;
-    }
-
-    const btn = document.getElementById("emailSubmitBtn");
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>';
-
-    FDT.track("email_submit", {
-      doorId: currentDoor ? currentDoor.id : "",
-      doorTitle: currentDoor ? currentDoor.title : "",
-      email: email,
-    });
-
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.textContent = SITE_CONFIG.emailButtonText;
-      document.getElementById("emailThanksTitle_text").textContent = SITE_CONFIG.emailThanksTitle;
-      document.getElementById("emailThanksText_text").textContent = SITE_CONFIG.emailThanksText;
-      showStep("stepThanks");
-    }, 500);
-  }
-
-  // -------------------------------------------------------------
   // Init
   // -------------------------------------------------------------
   function init() {
     applyBrandColors();
     applyBaseTexts();
+    renderGoldenCircle();
     renderDoors();
     renderTeam();
-
-    document.getElementById("checkoutOverlay")?.addEventListener("click", (e) => {
-      if (e.target.id === "checkoutOverlay") closeCheckout("backdrop");
-    });
-    document.querySelectorAll("[data-close-modal]").forEach((btn) => {
-      btn.addEventListener("click", () => closeCheckout("close_button"));
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeCheckout("escape_key");
-    });
-    document.getElementById("buyButton")?.addEventListener("click", handleBuyClick);
-    document.getElementById("emailForm")?.addEventListener("submit", handleEmailSubmit);
-    document.getElementById("backToPayBtn")?.addEventListener("click", () => showStep("stepPay"));
   }
 
   if (document.readyState === "loading") {

@@ -7,11 +7,13 @@
 (function () {
   "use strict";
 
+  // Entspricht dem Weg einer Tür: Startseite -> Klick -> eigene
+  // Produktseite -> "Vormerken" -> E-Mail hinterlassen.
   const FUNNEL_STAGES = [
-    { key: "door_impression", label: "Ansicht" },
-    { key: "door_click", label: "Klick" },
-    { key: "checkout_open", label: "Checkout geöffnet" },
-    { key: "payment_attempt", label: "Kaufversuch" },
+    { key: "door_impression", label: "Ansicht (Startseite)" },
+    { key: "door_click", label: "Klick zum Produkt" },
+    { key: "page_view", label: "Produktseite aufgerufen" },
+    { key: "reserve_click", label: "Vormerken geklickt" },
     { key: "email_submit", label: "E-Mail hinterlassen" },
   ];
 
@@ -20,14 +22,22 @@
     let totalDuration = 0, durationSamples = 0, emails = 0;
     events.forEach((e) => {
       const doorId = e.doorId || "_ohne_tuer";
-      if (!doors[doorId]) doors[doorId] = { title: e.doorTitle || doorId, counts: {} };
+      if (!doors[doorId]) doors[doorId] = { title: e.doorTitle || doorId, counts: {}, _durTotal: 0, _durSamples: 0 };
       doors[doorId].counts[e.event] = (doors[doorId].counts[e.event] || 0) + 1;
       if (e.doorTitle) doors[doorId].title = e.doorTitle;
       if (e.event === "page_duration" && typeof e.value === "number") {
         totalDuration += e.value;
         durationSamples += 1;
+        doors[doorId]._durTotal += e.value;
+        doors[doorId]._durSamples += 1;
       }
       if (e.event === "email_submit") emails += 1;
+    });
+    Object.keys(doors).forEach((id) => {
+      const d = doors[id];
+      d.avgDurationSeconds = d._durSamples ? Math.round(d._durTotal / d._durSamples) : 0;
+      delete d._durTotal;
+      delete d._durSamples;
     });
     return {
       ok: true,
@@ -58,8 +68,10 @@
   }
 
   function sumStage(doors, stageKey) {
+    // Nur echte Türen zählen -- sonst würde z.B. der generische "page_view"
+    // der Startseite selbst (Bucket "_ohne_tuer") den Produkt-Funnel verfälschen.
     let total = 0;
-    Object.keys(doors).forEach((id) => { total += (doors[id].counts[stageKey] || 0); });
+    realDoorIds(doors).forEach((id) => { total += (doors[id].counts[stageKey] || 0); });
     return total;
   }
 
@@ -116,12 +128,35 @@
     `).join("");
   }
 
+  function renderDurationBars(data) {
+    const wrap = document.getElementById("durationBars");
+    const doors = data.doors || {};
+    const rows = realDoorIds(doors).map((id) => ({
+      id, title: doors[id].title || id, avg: doors[id].avgDurationSeconds || 0,
+    })).sort((a, b) => b.avg - a.avg);
+
+    if (rows.length === 0 || rows.every((r) => r.avg === 0)) {
+      wrap.innerHTML = '<div class="empty-state">Noch keine Verweildauer-Daten (mind. ein Seitenaufruf muss beendet werden).</div>';
+      return;
+    }
+    const max = Math.max(1, ...rows.map((r) => r.avg));
+    wrap.innerHTML = rows.map((r) => `
+      <div class="funnel-row">
+        <div class="funnel-label">${escapeHtml(r.title)}</div>
+        <div class="funnel-track">
+          <div class="funnel-fill" style="width:${Math.max((r.avg / max) * 100, r.avg > 0 ? 3 : 0)}%; background-color: var(--brand);" title="${escapeHtml(r.title)}: ${formatDuration(r.avg)}"></div>
+        </div>
+        <div class="funnel-value">${formatDuration(r.avg)}</div>
+      </div>
+    `).join("");
+  }
+
   function renderTable(data) {
     const tbody = document.querySelector("#doorTable tbody");
     const doors = data.doors || {};
     const ids = realDoorIds(doors);
     if (ids.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Noch keine Daten.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" class="empty-state">Noch keine Daten.</td></tr>';
       return;
     }
     tbody.innerHTML = ids.map((id) => {
@@ -129,8 +164,8 @@
       const c = d.counts;
       const impressions = c.door_impression || 0;
       const clicks = c.door_click || 0;
-      const checkout = c.checkout_open || 0;
-      const payment = c.payment_attempt || 0;
+      const pageViews = c.page_view || 0;
+      const reserve = c.reserve_click || 0;
       const emails = c.email_submit || 0;
       const rate = clicks ? Math.round((emails / clicks) * 100) : 0;
       return `
@@ -138,10 +173,11 @@
           <td>${escapeHtml(d.title || id)}</td>
           <td>${impressions}</td>
           <td>${clicks}</td>
-          <td>${checkout}</td>
-          <td>${payment}</td>
+          <td>${pageViews}</td>
+          <td>${reserve}</td>
           <td>${emails}</td>
           <td>${rate}%</td>
+          <td>${formatDuration(d.avgDurationSeconds || 0)}</td>
         </tr>
       `;
     }).join("");
@@ -166,6 +202,7 @@
     renderKpis(data);
     renderFunnel(data);
     renderDoorBars(data);
+    renderDurationBars(data);
     renderTable(data);
   }
 

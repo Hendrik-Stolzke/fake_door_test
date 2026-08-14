@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{productTitle}} – {{siteTitle}}</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="brand">
+      <span class="logo-dot"><span data-logo-emoji>🚪</span></span>
+      <span data-site-title>Meine Produktidee</span>
+    </a>
+    <nav class="nav-links">
+      <a href="index.html">Produkte</a>
+      <a href="team.html">Team</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+    </nav>
+  </div>
+</header>
+
+<div id="productNotFound" class="page-content" style="display:none;">
+  <div class="container">
+    <div class="empty-state">
+      <p>Dieses Produkt gibt es nicht (mehr).</p>
+      <p><a href="index.html">← Zurück zu allen Produkten</a></p>
+    </div>
+  </div>
+</div>
+
+<div id="productLoaded" style="display:none;">
+  <section class="product-hero">
+    <div class="container product-hero-grid">
+      <div class="product-media" id="productMedia"></div>
+      <div class="product-info">
+        <a href="index.html" class="back-link">← Zurück zu allen Produkten</a>
+        <span class="door-badge product-badge" id="productBadge" style="display:none;"></span>
+        <h1 id="productTitle"></h1>
+        <p class="product-description" id="productDescription"></p>
+        <div class="product-price" id="productPrice"></div>
+
+        <div class="step active" id="stepReserve">
+          <button type="button" class="btn btn-primary" id="reserveButton">Vormerken</button>
+        </div>
+
+        <div class="step" id="stepEmail">
+          <h3 class="reveal-title" id="reserveFormTitleText"></h3>
+          <p class="reveal-text" id="reserveFormText"></p>
+          <form id="emailForm">
+            <div class="field">
+              <label for="emailInput" class="visually-hidden">E-Mail-Adresse</label>
+              <input type="email" id="emailInput" required placeholder="du@beispiel.de">
+            </div>
+            <label class="consent-line">
+              <input type="checkbox" id="emailConsentCheck">
+              <span>Ich bin einverstanden, dass meine E-Mail-Adresse gespeichert wird, um mich über den Launch zu informieren. Mehr dazu in der <a href="datenschutz.html" target="_blank">Datenschutzerklärung</a>.</span>
+            </label>
+            <button type="submit" class="btn btn-primary btn-block" id="reserveSubmitBtn">Vormerken bestätigen</button>
+            <div class="form-msg" id="emailFormMsg"></div>
+          </form>
+          <p style="margin-top:10px;">
+            <button type="button" class="btn btn-ghost" id="backToReserveBtn" style="font-size:0.8rem; padding:6px 12px;">Zurück</button>
+          </p>
+        </div>
+
+        <div class="step" id="stepThanks">
+          <div class="thanks-box">
+            <div class="reveal-icon">🎉</div>
+            <h3 class="reveal-title" id="reserveThanksTitleText"></h3>
+            <p class="reveal-text" id="reserveThanksTextText"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <span>&copy; <span id="year"></span> <span data-site-title>Meine Produktidee</span></span>
+    <nav>
+      <a href="team.html">Team</a>
+      <a href="datenschutz.html">Datenschutz</a>
+      <a href="impressum.html">Impressum</a>
+      <a href="auswertung.html">Auswertung</a>
+    </nav>
+  </div>
+</footer>
+
+<div class="consent-banner" id="consentBanner">
+  <p>Wir verwenden anonyme Analyse-Funktionen (eigenes Tracking, optional Google Analytics), um zu verstehen, welche Produktideen auf Interesse stoßen. Details in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+  <div class="actions">
+    <button type="button" class="btn btn-primary" id="consentAccept">Akzeptieren</button>
+    <button type="button" class="btn btn-ghost" id="consentDecline">Ablehnen</button>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/tracking.js"></script>
+<script src="js/app.js"></script>
+<script src="js/product.js"></script>
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>

@@ -12,9 +12,27 @@ const SITE_CONFIG = {
   // ---- Grundtexte ------------------------------------------------
   siteTitle: "Meine Produktidee",           // erscheint oben links & im Browser-Tab
   logoEmoji: "🚪",                          // ein Emoji als Logo, z.B. "🚀" "✨" "🧪"
-  heroBadge: "Early-Access-Test",
-  heroHeadline: "Wir bauen etwas Neues – hilf uns zu verstehen, was du wirklich brauchst.",
-  heroSubtext: "Klicke auf ein Angebot, das dich interessiert, und probiere den Bestellprozess aus.",
+
+  // ---- Startseite nach Simon Sineks "Golden Circle" ----------------
+  // Erst WARUM (die Überzeugung/Mission), dann WIE (euer Ansatz),
+  // erst zuletzt WAS (die konkreten Produkte/Türen unten).
+
+  // WARUM -- der große Aufhänger ganz oben auf der Seite
+  whyBadge: "Warum es uns gibt",
+  whyHeadline: "Wir glauben, dass [dein grundlegendes Warum hier hin soll].",
+  whyText: "Ein bis zwei Sätze, die erklären, wofür ihr steht -- nicht was ihr verkauft, sondern warum es euch gibt.",
+
+  // WIE -- euer Ansatz, in 3 kurzen Punkten
+  howTitle: "Wie wir das anders machen",
+  howPoints: [
+    { emoji: "🎯", title: "Erster Punkt", text: "Kurze Erklärung, was euren Ansatz besonders macht." },
+    { emoji: "🤝", title: "Zweiter Punkt", text: "Kurze Erklärung, was euren Ansatz besonders macht." },
+    { emoji: "⚡", title: "Dritter Punkt", text: "Kurze Erklärung, was euren Ansatz besonders macht." },
+  ],
+
+  // WAS -- Überschrift direkt über den Produktkarten (den "Türen" unten)
+  whatTitle: "Was wir anbieten",
+  whatText: "Das sind die Ideen, die wir gerade testen. Klick auf eine, um mehr zu erfahren.",
 
   // ---- Farben (Hex-Code, mit # davor) -----------------------------
   brandColor: "#2a78d6",
@@ -27,7 +45,7 @@ const SITE_CONFIG = {
   // Solange dieses Feld leer ("") ist, werden Klicks nur lokal in
   // deinem eigenen Browser gespeichert (gut zum Testen, aber NICHT
   // für den echten Live-Test mit echten Besucher:innen geeignet!).
-  trackingWebAppUrl: "https://script.google.com/macros/s/AKfycbzQAXJ0FHWhJq0U3qWBdGrlcW52n3I5wroaGBj4YBDF7VUmMCeuqNFxKYBs_W1eLk0F/exec",
+  trackingWebAppUrl: "https://script.google.com/macros/s/AKfycbxrqpfBlo7zqiQZsOo3GUiso7QTrb93s769r59ziC9SO1hjWsrsuIkcpapYhNF-mPJf/exec",
 
   // ---- TRACKING: Google Analytics 4 (optional, kostenlos) ---------
   // Trage hier deine Messwert-ID ein, z.B. "G-ABC1234XYZ".
@@ -35,13 +53,14 @@ const SITE_CONFIG = {
   // Tracking über das Google Sheet funktioniert trotzdem.
   gaMeasurementId: "",
 
-  // ---- E-Mail-Einsammlung -----------------------------------------
-  emailPromptTitle: "Fast geschafft!",
-  emailPromptText: "Dieses Produkt ist noch in Arbeit und aktuell nicht käuflich – es wurde nichts abgebucht. Trag deine E-Mail ein und wir benachrichtigen dich, sobald es startet.",
+  // ---- "Vormerken"-Button auf der Produktseite ---------------------
+  reserveButtonText: "Vormerken",
+  reserveFormTitle: "Fast geschafft!",
+  reserveFormText: "Dieses Produkt ist noch in Arbeit und aktuell nicht verfügbar. Trag deine E-Mail ein und wir benachrichtigen dich, sobald es startet.",
   emailPlaceholder: "du@beispiel.de",
-  emailButtonText: "Benachrichtige mich",
-  emailThanksTitle: "Danke dir! 🎉",
-  emailThanksText: "Wir melden uns, sobald es losgeht.",
+  reserveSubmitText: "Vormerken bestätigen",
+  reserveThanksTitle: "Danke dir! 🎉",
+  reserveThanksText: "Wir melden uns, sobald es losgeht.",
 
   // ---- Rechtliches (bitte ausfüllen vor dem Live-Schalten!) --------
   companyName: "Vorname Nachname",
@@ -55,7 +74,9 @@ const SITE_CONFIG = {
 
 /* =====================================================================
    DIE TÜREN ("Fake Doors")
-   Jeder Block { ... } ist EIN Produkt/EINE Idee, die getestet wird.
+   Jeder Block { ... } ist EIN Produkt/EINE Idee, die getestet wird und eine
+   eigene Seite bekommt (produkt.html?id=...) mit Bild, Text und
+   "Vormerken"-Button.
    Du kannst beliebig viele hinzufügen oder löschen – kopiere dafür
    einfach einen kompletten Block inklusive der geschweiften Klammern
    { } und der Endkomma, und ändere die Werte.

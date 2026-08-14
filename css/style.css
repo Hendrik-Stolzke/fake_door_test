@@ -145,24 +145,24 @@ button { font-family: inherit; }
   }
 }
 
-/* ---------- Hero ---------- */
-.hero {
+/* ---------- WARUM -- der große Aufhänger (Golden Circle: Why) ---------- */
+.why-section {
   padding: 72px 0 48px;
   text-align: center;
 }
-.hero h1 {
+.why-section h1 {
   font-size: clamp(2rem, 4.5vw, 3rem);
   line-height: 1.15;
   margin: 0 0 16px;
   letter-spacing: -0.02em;
 }
-.hero p.subtext {
+.why-section p.subtext {
   font-size: 1.15rem;
   color: var(--text-secondary);
   max-width: 640px;
   margin: 0 auto;
 }
-.hero .badge {
+.why-section .badge {
   display: inline-block;
   padding: 6px 14px;
   border-radius: 999px;
@@ -173,8 +173,91 @@ button { font-family: inherit; }
   margin-bottom: 18px;
 }
 
-/* ---------- Doors grid ---------- */
-.doors-section { padding: 24px 0 80px; }
+/* ---------- WIE -- 3 Ansatz-Punkte (Golden Circle: How) ---------- */
+.how-section { padding: 24px 0 56px; }
+.how-section h2 {
+  text-align: center;
+  font-size: 1.6rem;
+  margin: 0 0 32px;
+}
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+}
+.how-card {
+  text-align: center;
+  padding: 8px 12px;
+}
+.how-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 14px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--brand) 12%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+.how-card h3 { margin: 0 0 6px; font-size: 1.02rem; }
+.how-card p { margin: 0; color: var(--text-secondary); font-size: 0.9rem; }
+
+/* ---------- Produktseite (produkt.html) ---------- */
+.product-hero { padding: 48px 0 80px; }
+.product-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+@media (max-width: 760px) {
+  .product-hero-grid { grid-template-columns: 1fr; gap: 28px; }
+}
+.product-media {
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--brand), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+.product-media img { width: 100%; height: 100%; object-fit: cover; }
+.back-link {
+  display: inline-block;
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+.product-badge {
+  position: static;
+  margin-bottom: 10px;
+}
+.product-info h1 { margin: 0 0 10px; font-size: 1.9rem; }
+.product-description {
+  color: var(--text-secondary);
+  font-size: 1.02rem;
+  margin: 0 0 16px;
+}
+.product-price {
+  font-weight: 700;
+  font-size: 1.4rem;
+  margin-bottom: 24px;
+}
+/* Formular-Bausteine sind standardmäßig zentriert (fürs Modal gedacht) --
+   auf der linksbündigen Produktseite sollen sie sich einfügen. */
+.product-info .reveal-icon { margin-left: 0; }
+.product-info .reveal-title,
+.product-info .reveal-text {
+  text-align: left;
+}
+
+/* ---------- WAS -- Türen-Grid (jede Karte verlinkt auf produkt.html) ---------- */
+.what-section { padding: 24px 0 80px; }
+.what-section .lead { margin-top: 8px; }
 .doors-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -192,10 +275,14 @@ button { font-family: inherit; }
   display: flex;
   flex-direction: column;
   text-align: left;
+  color: inherit;
+  text-decoration: none;
 }
 .door-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-md);
+  text-decoration: none;
+  color: inherit;
 }
 .door-media {
   aspect-ratio: 4 / 3;
@@ -268,75 +355,7 @@ button { font-family: inherit; }
 .btn-block { width: 100%; }
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* ---------- Modal / Checkout ---------- */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(11, 11, 11, 0.55);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 100;
-}
-.modal-overlay.open { display: flex; }
-.modal-card {
-  background: var(--surface-1);
-  border-radius: var(--radius-lg);
-  max-width: 460px;
-  width: 100%;
-  max-height: 92vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-lg);
-  padding: 26px 26px 28px;
-  position: relative;
-  animation: modal-in 0.18s ease;
-}
-@keyframes modal-in {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-.modal-close {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: none;
-  background: var(--surface-2);
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.modal-close:hover { background: var(--gridline); }
-.modal-product {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  margin-bottom: 18px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--gridline);
-}
-.modal-product .thumb {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--brand), var(--accent));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-.modal-product .thumb img { width: 100%; height: 100%; object-fit: cover; }
-.modal-product h2 { margin: 0 0 2px; font-size: 1.08rem; }
-.modal-product .price { color: var(--text-secondary); font-size: 0.9rem; }
-
+/* ---------- Formular-Bausteine (wiederverwendet auf der Produktseite) ---------- */
 .field { margin-bottom: 14px; }
 .field label {
   display: block;
@@ -360,17 +379,6 @@ button { font-family: inherit; }
 }
 .field-row { display: flex; gap: 12px; }
 .field-row .field { flex: 1; }
-
-.demo-note {
-  font-size: 0.76rem;
-  color: var(--muted);
-  text-align: center;
-  margin-top: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
 
 .step { display: none; }
 .step.active { display: block; }

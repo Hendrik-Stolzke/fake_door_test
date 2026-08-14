@@ -26,7 +26,7 @@
 <div class="page-content">
   <div class="container">
     <h1>Auswertung</h1>
-    <p class="lead">Live-Ergebnisse deines Fake-Door-Tests: welche Tür wird geklickt, wer kauft (fast), wer hinterlässt eine E-Mail.</p>
+    <p class="lead">Live-Ergebnisse deines Fake-Door-Tests: welche Tür wird geklickt, wie lange bleiben Besucher:innen auf der jeweiligen Produktseite, wer merkt sich ein Produkt vor.</p>
     <p class="source-note" id="sourceNote"></p>
 
     <div class="kpi-row">
@@ -50,14 +50,20 @@
 
     <div class="viz-card">
       <h2>Gesamt-Funnel</h2>
-      <p class="viz-sub">Wie viele Besucher:innen erreichen jede Stufe des Kaufprozesses (über alle Produkte hinweg)?</p>
+      <p class="viz-sub">Wie viele Besucher:innen erreichen jede Stufe -- von der Startseite über die eigene Produktseite bis zum Vormerken (über alle Produkte hinweg)?</p>
       <div id="funnelChart"></div>
     </div>
 
     <div class="viz-card">
       <h2>Klicks je Produkt</h2>
-      <p class="viz-sub">Welche Tür interessiert am meisten? Sortiert nach Klicks auf "Ansehen".</p>
+      <p class="viz-sub">Welche Tür interessiert am meisten? Sortiert nach Klicks auf "Zum Produkt".</p>
       <div id="doorBars"></div>
+    </div>
+
+    <div class="viz-card">
+      <h2>Verweildauer je Produkt</h2>
+      <p class="viz-sub">Wie lange bleiben Besucher:innen auf der jeweiligen Produktseite? Ein starkes, unabhängiges Signal zusätzlich zu den Klicks -- wer liest, ist ernsthafter interessiert als wer nur kurz reinschaut.</p>
+      <div id="durationBars"></div>
     </div>
 
     <div class="viz-card">
@@ -70,10 +76,11 @@
               <th>Produkt</th>
               <th>Ansichten</th>
               <th>Klicks</th>
-              <th>Checkout</th>
-              <th>Kaufversuch</th>
+              <th>Produktseite</th>
+              <th>Vormerken</th>
               <th>E-Mails</th>
               <th>Klick→E-Mail</th>
+              <th>Ø Verweildauer</th>
             </tr>
           </thead>
           <tbody></tbody>

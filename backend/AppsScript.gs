@@ -80,14 +80,16 @@ function getSheet() {
   return sheet;
 }
 
-/* Fasst alle Events pro Tuer + Eventtyp zusammen, inkl. Gesamt-
-   Verweildauer, fuer die Anzeige in auswertung.html */
+/* Fasst alle Events pro Tuer + Eventtyp zusammen, inkl. Verweildauer --
+   sowohl gesamt als auch JE PRODUKT (avgDurationSeconds pro Tuer), damit
+   sich Produkte nicht nur nach Klicks, sondern auch nach Verweildauer
+   auf ihrer eigenen Seite unterscheiden lassen. */
 function buildStats() {
   const sheet = getSheet();
   const values = sheet.getDataRange().getValues();
   const rows = values.slice(1); // Header weg
 
-  const perDoor = {};       // { doorId: { title, counts: { event: n } } }
+  const perDoor = {};       // { doorId: { title, counts: { event: n }, avgDurationSeconds } }
   let totalDurationSeconds = 0;
   let durationSamples = 0;
   let emails = 0;
@@ -96,15 +98,24 @@ function buildStats() {
     const event = r[1], doorId = r[2] || "_ohne_tuer", doorTitle = r[3];
     const value = r[5];
 
-    if (!perDoor[doorId]) perDoor[doorId] = { title: doorTitle || doorId, counts: {} };
+    if (!perDoor[doorId]) perDoor[doorId] = { title: doorTitle || doorId, counts: {}, _durTotal: 0, _durSamples: 0 };
     perDoor[doorId].counts[event] = (perDoor[doorId].counts[event] || 0) + 1;
     if (doorTitle) perDoor[doorId].title = doorTitle;
 
     if (event === "page_duration" && typeof value === "number") {
       totalDurationSeconds += value;
       durationSamples += 1;
+      perDoor[doorId]._durTotal += value;
+      perDoor[doorId]._durSamples += 1;
     }
     if (event === "email_submit") emails += 1;
+  });
+
+  Object.keys(perDoor).forEach(function (id) {
+    const d = perDoor[id];
+    d.avgDurationSeconds = d._durSamples ? Math.round(d._durTotal / d._durSamples) : 0;
+    delete d._durTotal;
+    delete d._durSamples;
   });
 
   return {

@@ -1,10 +1,14 @@
 # Fake-Door-Test – Baukasten
 
-Eine fertige, kostenlose Website, um mehrere Produktideen gleichzeitig zu testen:
-Besucher:innen sehen "Türen" (Produktkarten), klicken auf eine, durchlaufen einen
-täuschend echten (aber nicht funktionalen) Bestellprozess und werden am Ende
-gebeten, ihre E-Mail-Adresse für eine Launch-Benachrichtigung zu hinterlassen.
-Jeder Klick, jeder Kaufversuch und jede Verweildauer wird automatisch getrackt.
+Eine fertige, kostenlose Website, um mehrere Produktideen gleichzeitig zu testen --
+aufgebaut nach Simon Sineks **Golden Circle** ("Start With Why"): Die Startseite
+erklärt zuerst **Warum** es das Projekt gibt, dann **Wie** ihr das anders macht,
+und erst danach **Was** ihr konkret anbietet (die "Türen"). Jede Tür bekommt eine
+**eigene Produktseite** mit Bild, Text und einem **"Vormerken"-Button** -- kein
+Fake-Zahlungsformular, kein Modal. Klicks auf "Vormerken" führen direkt zu einem
+E-Mail-Formular ("benachrichtige mich beim Launch"). Jeder Klick, jeder
+Seitenaufruf und jede Verweildauer wird automatisch getrackt -- **pro Produkt
+getrennt**, damit sich Produkte klar voneinander unterscheiden lassen.
 
 Keine Programmierkenntnisse nötig, um Inhalte zu ändern – nur eine Datei
 (`js/config.js`) bearbeiten. Alles ist kostenlos betreibbar.
@@ -14,21 +18,23 @@ Keine Programmierkenntnisse nötig, um Inhalte zu ändern – nur eine Datei
 ## 1. Was ist enthalten?
 
 ```
-index.html          Startseite mit den Produkt-„Türen“
+index.html          Startseite: Warum -> Wie -> Was (die Türen)
+produkt.html         Eigene Seite JEDER Tür (produkt.html?id=...), mit Vormerken-Button
 team.html            Team-Seite
 impressum.html       Impressum (Pflichtangaben)
 datenschutz.html     Datenschutzerklärung
 auswertung.html      Live-Dashboard mit den Tracking-Ergebnissen
 css/style.css        Design (Farben, Layout)
 js/config.js         ★ DIE DATEI, DIE DU BEARBEITEST ★ – Türen, Team, Texte, Tracking-Links
-js/tracking.js        Tracking-Logik (Consent, Events, Verweildauer)
-js/app.js             Rendert Türen/Team, steuert den Checkout-Dialog
-js/stats.js           Rendert das Dashboard auf auswertung.html
+js/tracking.js        Tracking-Logik (Consent, Events, Verweildauer -- pro Seite/Produkt)
+js/app.js             Rendert Startseite (Warum/Wie/Was) und Team
+js/product.js          Rendert produkt.html und steuert den Vormerken-Ablauf
+js/stats.js            Rendert das Dashboard auf auswertung.html
 backend/AppsScript.gs  Code für dein kostenloses Google-Sheet-Backend
 ```
 
 Du kannst diesen kompletten Ordner unverändert auf einen Gratis-Webhosting-Dienst
-hochladen (siehe Abschnitt 5) – es ist reines HTML/CSS/JavaScript, kein Server,
+hochladen (siehe Abschnitt 6) – es ist reines HTML/CSS/JavaScript, kein Server,
 keine Installation, keine Kosten.
 
 ---
@@ -39,11 +45,12 @@ keine Installation, keine Kosten.
 TextEdit im "Nur Text"-Modus auf dem Mac, oder besser: [VS Code](https://code.visualstudio.com/), kostenlos).
 
 Finde den Block `const DOORS = [ ... ]`. Jedes Produkt ist ein Abschnitt zwischen
-geschweiften Klammern:
+geschweiften Klammern und bekommt automatisch seine eigene Seite unter
+`produkt.html?id=<id>`:
 
 ```js
 {
-  id: "produkt-a",              // eindeutiger Name, ohne Leerzeichen/Umlaute
+  id: "produkt-a",              // eindeutiger Name, ohne Leerzeichen/Umlaute -- taucht in der URL auf
   title: "Produkt A",           // Name, der angezeigt wird
   description: "Kurzer Text.",  // 1 Satz Beschreibung
   price: "19,99 €",             // Preis als Text
@@ -57,16 +64,36 @@ geschweiften Klammern:
 - **Tür entfernen:** den kompletten Block (inkl. `{ }` und Komma) löschen.
 - **Reihenfolge ändern:** Blöcke einfach verschieben.
 
-Die Anzahl der Türen ist beliebig – die Seite passt das Layout automatisch an.
-Speichern, Seite im Browser neu laden – fertig.
+Die Anzahl der Türen ist beliebig – die Seite passt das Layout automatisch an,
+inklusive einer eigenen Unterseite pro Tür. Speichern, Seite im Browser neu
+laden – fertig.
 
 Das Team auf `team.html` funktioniert genauso über das `TEAM`-Array in derselben Datei.
 
-### Farben & Texte
+### Startseite: Warum -> Wie -> Was (Golden Circle)
 
-Ganz oben in `js/config.js` im Block `SITE_CONFIG` kannst du außerdem ändern:
-Seitentitel, Überschrift, Untertitel, Markenfarbe (`brandColor`), Texte für das
-E-Mail-Formular usw. – alles mit Kommentaren erklärt.
+Ebenfalls in `js/config.js`, im Block `SITE_CONFIG`, findest du drei Abschnitte
+nach Simon Sineks "Start With Why"-Prinzip:
+
+- **`whyBadge` / `whyHeadline` / `whyText`** -- der große Aufhänger ganz oben:
+  WARUM gibt es euch, wofür steht ihr? (Nicht: was verkauft ihr.)
+- **`howTitle` / `howPoints`** -- 3 kurze Punkte, WIE ihr das anders macht als
+  andere (jeder Punkt hat `emoji`, `title`, `text` -- genau wie bei den Türen
+  kannst du Punkte hinzufügen/entfernen, indem du Blöcke kopierst/löschst).
+- **`whatTitle` / `whatText`** -- die Überschrift direkt über den Produktkarten:
+  WAS ihr konkret anbietet (das sind die Türen weiter unten in `DOORS`).
+
+### "Vormerken"-Texte auf der Produktseite
+
+Ebenfalls in `SITE_CONFIG`: `reserveButtonText` (der Button neben Bild & Text),
+`reserveFormTitle`/`reserveFormText` (Überschrift/Text des E-Mail-Formulars, das
+sich nach Klick auf "Vormerken" öffnet), `reserveSubmitText`,
+`reserveThanksTitle`/`reserveThanksText` (Dankes-Nachricht danach).
+
+### Farben
+
+`brandColor`, `brandColorDark`, `accentColor` in `SITE_CONFIG` (Hex-Codes) --
+wirken sich sofort auf die ganze Seite aus, inklusive Produktseiten.
 
 ---
 
@@ -166,28 +193,36 @@ Datenbank nötig) – jeder dieser Anbieter reicht aus, es fallen keine Kosten a
 Zwei Wege, dieselben Daten zu sehen:
 
 1. **`auswertung.html`** auf deiner Live-Seite – automatisches Dashboard mit
-   Funnel (Ansicht → Klick → Checkout → Kaufversuch → E-Mail), Ranking der
-   Produkte nach Klicks, und einer Tabelle mit Conversion-Raten je Produkt.
+   Gesamt-Funnel (Ansicht → Klick → Produktseite → Vormerken → E-Mail), Ranking
+   der Produkte nach Klicks, Ranking nach **Verweildauer je Produkt**, und einer
+   Detailtabelle mit Conversion-Raten je Produkt.
 2. **Das Google Sheet selbst** – jede einzelne Zeile mit Zeitstempel,
    Ereignistyp, Produkt, Sitzungs-ID und ggf. E-Mail-Adresse. Gut für eigene
    Pivot-Tabellen/Diagramme.
 
-### Diese Ereignisse werden pro Tür getrackt
-| Ereignis | Bedeutung |
-|---|---|
-| `door_impression` | Produktkarte wurde sichtbar (Impression) |
-| `door_click` | Klick auf "Ansehen" |
-| `checkout_open` | Checkout-Dialog geöffnet |
-| `checkout_close` | Dialog geschlossen (mit Dauer in Sekunden) |
-| `payment_attempt` | Klick auf "Jetzt kaufen" (Kaufabsicht!) |
-| `paywall_shown` | "Fast geschafft"-Hinweis wurde angezeigt |
-| `email_submit` | E-Mail-Adresse wurde hinterlassen |
-| `page_duration` | Verweildauer auf der Seite in Sekunden |
+### Diese Ereignisse werden getrackt -- pro Produkt getrennt
 
-Die wichtigste Kennzahl für einen Fake-Door-Test ist meist die
-**Klick→E-Mail-Rate**: Wie viele der Leute, die eine Tür überhaupt angeklickt
-haben, waren am Ende bereit, ihre E-Mail-Adresse zu hinterlassen? Das ist ein
-deutlich stärkeres Signal für echtes Kaufinteresse als reine Klicks.
+| Ereignis | Bedeutung | Wo |
+|---|---|---|
+| `door_impression` | Produktkarte auf der Startseite wurde sichtbar | Startseite |
+| `door_click` | Klick auf "Zum Produkt" | Startseite |
+| `page_view` | Seitenaufruf -- auf `produkt.html` automatisch mit der jeweiligen Produkt-ID versehen | jede Seite |
+| `reserve_click` | Klick auf "Vormerken" | Produktseite |
+| `email_submit` | E-Mail-Adresse wurde hinterlassen | Produktseite |
+| `page_duration` | Verweildauer in Sekunden -- auf `produkt.html` ebenfalls automatisch dem Produkt zugeordnet | jede Seite |
+
+Weil `page_view` und `page_duration` auf der Produktseite automatisch die
+jeweilige Produkt-ID mitbekommen (siehe `FDT.setContext(...)` in
+`js/product.js`), lassen sich sowohl **Klicks als auch Verweildauer** je
+Produkt getrennt auswerten -- nicht nur, wie oft eine Tür angeklickt wurde,
+sondern auch, wie lange Interessierte tatsächlich auf der jeweiligen
+Produktseite bleiben. Das gibt ein deutlich klareres Bild, welches Produkt am
+meisten zieht, als Klicks allein.
+
+Die wichtigste Einzelkennzahl bleibt meist die **Klick→E-Mail-Rate**: Wie
+viele der Leute, die eine Tür überhaupt angeklickt haben, waren am Ende bereit,
+ihre E-Mail-Adresse zu hinterlassen? Kombiniert mit der Verweildauer bekommst
+du zwei unabhängige Signale für Kaufinteresse.
 
 ---
 
@@ -286,12 +321,13 @@ hakt.
 
 ---
 
-## 10. Warum "täuscht" das Kauf-Formular nicht wirklich?
+## 10. Warum "Vormerken" statt Fake-Checkout?
 
-Die Kartenfelder im Checkout-Dialog sind rein optisch – es werden keine
-eingegebenen Werte ausgelesen, gespeichert oder übertragen, und es gibt keine
-echte Zahlungsanbindung. Direkt nach dem Klick auf "Jetzt kaufen" steht sichtbar
-"Demo-Checkout – es erfolgt keine echte Zahlung", und im nächsten Schritt wird
-unmissverständlich erklärt, dass das Produkt noch nicht verfügbar ist. So misst
-du echte Kaufabsicht, ohne jemanden über eine tatsächlich stattfindende
-Zahlung zu täuschen.
+Diese Variante des Fake-Door-Tests verzichtet bewusst auf ein simuliertes
+Zahlungsformular. Statt Interessierte glauben zu lassen, sie würden gleich
+etwas kaufen, ist die Ansage von Anfang an ehrlich: "Dieses Produkt gibt es
+noch nicht -- trag dich ein, wenn du benachrichtigt werden willst." Ein Klick
+auf "Vormerken" ist trotzdem ein echtes, aussagekräftiges Signal für
+Kaufinteresse -- kombiniert mit der Verweildauer auf der Produktseite (siehe
+Abschnitt 7) bekommst du sogar zwei unabhängige Signale, ganz ohne
+Kreditkarten-Theater.

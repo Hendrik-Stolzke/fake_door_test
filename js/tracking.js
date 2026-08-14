@@ -1,7 +1,7 @@
 /* =====================================================================
    TRACKING-KERN
-   Zeichnet alle Events auf (Seitenaufruf, Klicks, Kaufversuch, E-Mail,
-   Verweildauer) und schickt sie:
+   Zeichnet alle Events auf (Seitenaufruf, Klicks, Vormerken, E-Mail,
+   Verweildauer -- pro Seite/Produkt getrennt) und schickt sie:
      1) an dein kostenloses Google Sheet (wenn trackingWebAppUrl gesetzt ist)
      2) an Google Analytics 4 (wenn gaMeasurementId gesetzt ist)
      3) IMMER zusätzlich lokal in den Browser-Speicher (localStorage),
@@ -20,6 +20,18 @@
 
   const pageStartTime = Date.now();
   let gaLoaded = false;
+
+  // ---------------------------------------------------------------
+  // Seiten-Kontext (z.B. welches Produkt zeigt produkt.html gerade an) --
+  // wird automatisch in JEDES Event dieser Seite gemischt, auch in die
+  // automatischen "page_view"/"page_duration"-Events. So lassen sich
+  // Klicks UND Verweildauer sauber pro Produkt-Unterseite auswerten,
+  // statt sie alle unter einer einzigen "produkt.html" zu vermischen.
+  // ---------------------------------------------------------------
+  let pageContext = {};
+  function setContext(extra) {
+    Object.assign(pageContext, extra || {});
+  }
 
   // ---------------------------------------------------------------
   // Consent
@@ -126,6 +138,7 @@
         referrer: document.referrer || "",
         userAgent: navigator.userAgent,
       },
+      pageContext,
       data
     );
 
@@ -218,6 +231,7 @@
 
   window.FDT = {
     track: track,
+    setContext: setContext,
     hasConsent: hasConsent,
     getSessionId: getSessionId,
     readLocalEvents: readLocalEvents,
