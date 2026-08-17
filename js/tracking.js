@@ -22,6 +22,16 @@
   let gaLoaded = false;
 
   // ---------------------------------------------------------------
+  // Seiten, die NIE getrackt werden sollen -- auswertung.html ist das
+  // interne Dashboard für dich als Betreiber:in, kein Teil des
+  // Fake-Door-Tests. Eigene Besuche dort sollen die Auswertung nicht
+  // verfälschen.
+  // ---------------------------------------------------------------
+  const EXCLUDED_PAGES = ["auswertung.html"];
+  const currentPage = window.location.pathname.replace(/^\//, "") || "index.html";
+  const trackingDisabled = EXCLUDED_PAGES.indexOf(currentPage) !== -1;
+
+  // ---------------------------------------------------------------
   // Seiten-Kontext (z.B. welches Produkt zeigt produkt.html gerade an) --
   // wird automatisch in JEDES Event dieser Seite gemischt, auch in die
   // automatischen "page_view"/"page_duration"-Events. So lassen sich
@@ -126,6 +136,7 @@
   // Öffentliche Track-Funktion
   // ---------------------------------------------------------------
   function track(eventName, data) {
+    if (trackingDisabled) return;
     data = data || {};
     if (!hasConsent()) return;
 
@@ -162,18 +173,21 @@
     const seconds = Math.round((Date.now() - pageStartTime) / 1000);
     track("page_duration", { value: seconds });
   }
-  document.addEventListener("visibilitychange", function () {
-    if (document.visibilityState === "hidden") {
-      sendDuration();
-      durationSent = false; // falls Nutzer:in zurückkommt und später wieder wegnavigiert
-    }
-  });
-  window.addEventListener("pagehide", sendDuration);
+  if (!trackingDisabled) {
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "hidden") {
+        sendDuration();
+        durationSent = false; // falls Nutzer:in zurückkommt und später wieder wegnavigiert
+      }
+    });
+    window.addEventListener("pagehide", sendDuration);
+  }
 
   // ---------------------------------------------------------------
   // Consent-Banner verdrahten
   // ---------------------------------------------------------------
   function initConsentBanner() {
+    if (trackingDisabled) return;
     const banner = document.getElementById("consentBanner");
     if (!banner) {
       // Keine Banner-Elemente auf dieser Seite (z.B. Impressum) -- trotzdem

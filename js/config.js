@@ -45,9 +45,9 @@ const SITE_CONFIG = {
   // Solange dieses Feld leer ("") ist, werden Klicks nur lokal in
   // deinem eigenen Browser gespeichert (gut zum Testen, aber NICHT
   // für den echten Live-Test mit echten Besucher:innen geeignet!).
-  trackingWebAppUrl: "https://script.google.com/macros/s/AKfycbxrqpfBlo7zqiQZsOo3GUiso7QTrb93s769r59ziC9SO1hjWsrsuIkcpapYhNF-mPJf/exec",
+  trackingWebAppUrl: "https://script.google.com/macros/s/AKfycbxhPnGUZTDFJMManY_D921Y8YIpG6fw_Ab-g9Z-u4T_vzuH29ONpv4MX7IHQBXors_F/exec",
 
-  // ---- TRACKING: Google Analytics 4 (optional, kostenlos) ---------
+  // ---- TRACKING: Google Analytics 4 (optional, nicht empfohlen, kostenlos) ---------
   // Trage hier deine Messwert-ID ein, z.B. "G-ABC1234XYZ".
   // Leer lassen ("") = kein Google Analytics, das eingebaute
   // Tracking über das Google Sheet funktioniert trotzdem.
