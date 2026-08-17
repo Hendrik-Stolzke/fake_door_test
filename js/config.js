@@ -90,6 +90,8 @@ const SITE_CONFIG = {
    - price:       Preis als Text, z.B. "19,99 €" oder "ab 9 € / Monat"
    - emoji:       wird gezeigt, wenn kein Bild angegeben ist
    - image:       (optional) Bild-URL, z.B. "https://..." oder "bilder/produkt-a.jpg"
+                  -- eigene Bilder kommen in den Ordner "bilder/" (siehe
+                  bilder/README.md), leer lassen ("") = Emoji als Platzhalter
    - badge:       (optional) kleines Label wie "Neu" oder "Beliebt" – leer lassen mit ""
    ===================================================================== */
 
@@ -128,7 +130,8 @@ const DOORS = [
    Genau wie bei DOORS: Block kopieren, um weitere Personen hinzuzufügen,
    Block löschen, um jemanden zu entfernen.
 
-   Felder: name, role (Rolle), bio (1 Satz), emoji, image (optional)
+   Felder: name, role (Rolle), bio (1 Satz), emoji, image (optional -- auch
+   hier kommen eigene Fotos in den Ordner "bilder/", siehe bilder/README.md)
    ===================================================================== */
 
 const TEAM = [

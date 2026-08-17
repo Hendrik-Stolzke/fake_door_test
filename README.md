@@ -64,6 +64,10 @@ geschweiften Klammern und bekommt automatisch seine eigene Seite unter
 - **Tür hinzufügen:** einen kompletten Block kopieren, einfügen, Werte ändern.
 - **Tür entfernen:** den kompletten Block (inkl. `{ }` und Komma) löschen.
 - **Reihenfolge ändern:** Blöcke einfach verschieben.
+- **Eigenes Produktbild statt Emoji:** Bilddatei in den Ordner `bilder/` legen
+  (Anleitung dort in `bilder/README.md`) und bei `image` den Pfad eintragen,
+  z. B. `image: "bilder/produkt-a.jpg"`. Alternativ direkt eine Bild-URL von
+  einer anderen Website eintragen, z. B. `image: "https://.../foto.jpg"`.
 
 Die Anzahl der Türen ist beliebig – die Seite passt das Layout automatisch an,
 inklusive einer eigenen Unterseite pro Tür. Speichern, Seite im Browser neu
