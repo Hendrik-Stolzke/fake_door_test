@@ -303,6 +303,11 @@
   function renderPageDurations(pages) {
     const wrap = document.getElementById("pageDurationBars");
     const rows = Object.keys(pages || {})
+      // "auswertung"/"auswertung.html" ausblenden -- alte Datenpunkte aus der
+      // Zeit, bevor die Dashboard-Seite selbst vom Tracking ausgenommen wurde
+      // (siehe tracking.js), sollen die Anzeige nicht verfälschen. Wirkt sofort,
+      // ganz ohne das Google Apps Script neu bereitzustellen.
+      .filter((key) => key.toLowerCase().indexOf("auswertung") === -1)
       .map((key) => ({ key, label: pageLabel(key), avg: pages[key].avgDurationSeconds || 0, views: pages[key].pageViews || 0 }))
       .sort((a, b) => b.avg - a.avg);
 
