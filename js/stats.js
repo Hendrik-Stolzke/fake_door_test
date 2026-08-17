@@ -17,14 +17,39 @@
     { key: "email_submit", label: "E-Mail hinterlassen" },
   ];
 
+  // Freundliche Namen für die generischen Seiten (Produktseiten haben ihren
+  // eigenen Titel bereits über die Tür in js/config.js).
+  const PAGE_LABELS = {
+    "index.html": "Startseite",
+    "team.html": "Team",
+    "impressum.html": "Impressum",
+    "datenschutz.html": "Datenschutz",
+    "auswertung.html": "Auswertung",
+  };
+  function pageLabel(key) { return PAGE_LABELS[key] || key; }
+
   function aggregateLocalEvents(events) {
     const doors = {};
+    const pages = {};
     let totalDuration = 0, durationSamples = 0, emails = 0;
     events.forEach((e) => {
       const doorId = e.doorId || "_ohne_tuer";
       if (!doors[doorId]) doors[doorId] = { title: e.doorTitle || doorId, counts: {}, _durTotal: 0, _durSamples: 0 };
       doors[doorId].counts[e.event] = (doors[doorId].counts[e.event] || 0) + 1;
       if (e.doorTitle) doors[doorId].title = e.doorTitle;
+
+      // Verweildauer je Seite -- nur für Seiten OHNE Tür-Bezug (Produktseiten
+      // stecken schon einzeln in "doors" und sollen nicht doppelt gezählt werden).
+      if (!e.doorId) {
+        const pKey = e.page || "unbekannt";
+        if (!pages[pKey]) pages[pKey] = { pageViews: 0, _durTotal: 0, _durSamples: 0 };
+        if (e.event === "page_view") pages[pKey].pageViews += 1;
+        if (e.event === "page_duration" && typeof e.value === "number") {
+          pages[pKey]._durTotal += e.value;
+          pages[pKey]._durSamples += 1;
+        }
+      }
+
       if (e.event === "page_duration" && typeof e.value === "number") {
         totalDuration += e.value;
         durationSamples += 1;
@@ -39,12 +64,19 @@
       delete d._durTotal;
       delete d._durSamples;
     });
+    Object.keys(pages).forEach((key) => {
+      const p = pages[key];
+      p.avgDurationSeconds = p._durSamples ? Math.round(p._durTotal / p._durSamples) : 0;
+      delete p._durTotal;
+      delete p._durSamples;
+    });
     return {
       ok: true,
       totalEvents: events.length,
       totalEmails: emails,
       avgDurationSeconds: durationSamples ? Math.round(totalDuration / durationSamples) : 0,
       doors,
+      pages,
       source: "local",
     };
   }
@@ -268,6 +300,28 @@
     }).join("");
   }
 
+  function renderPageDurations(pages) {
+    const wrap = document.getElementById("pageDurationBars");
+    const rows = Object.keys(pages || {})
+      .map((key) => ({ key, label: pageLabel(key), avg: pages[key].avgDurationSeconds || 0, views: pages[key].pageViews || 0 }))
+      .sort((a, b) => b.avg - a.avg);
+
+    if (rows.length === 0) {
+      wrap.innerHTML = '<div class="empty-state">Noch keine Verweildauer-Daten für andere Seiten.</div>';
+      return;
+    }
+    const max = Math.max(1, ...rows.map((r) => r.avg));
+    wrap.innerHTML = rows.map((r) => `
+      <div class="funnel-row">
+        <div class="funnel-label">${escapeHtml(r.label)}${r.views ? `<span class="funnel-conv">${r.views.toLocaleString("de-DE")} Aufrufe</span>` : ""}</div>
+        <div class="funnel-track">
+          <div class="funnel-fill" style="width:${Math.max((r.avg / max) * 100, r.avg > 0 ? 3 : 0)}%; background-color: var(--brand);" title="${escapeHtml(r.label)}: ${formatDuration(r.avg)}"></div>
+        </div>
+        <div class="funnel-value">${formatDuration(r.avg)}</div>
+      </div>
+    `).join("");
+  }
+
   function renderTable(rows) {
     const tbody = document.querySelector("#doorTable tbody");
     if (rows.length === 0) {
@@ -310,6 +364,7 @@
     renderKpis(data, rows);
     renderFunnel(data);
     renderComparison(rows);
+    renderPageDurations(data.pages || {});
     renderTable(rows);
   }
 

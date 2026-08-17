@@ -81,32 +81,51 @@ function getSheet() {
 }
 
 /* Fasst alle Events pro Tuer + Eventtyp zusammen, inkl. Verweildauer --
-   sowohl gesamt als auch JE PRODUKT (avgDurationSeconds pro Tuer), damit
-   sich Produkte nicht nur nach Klicks, sondern auch nach Verweildauer
-   auf ihrer eigenen Seite unterscheiden lassen. */
+   sowohl gesamt als auch JE PRODUKT (avgDurationSeconds pro Tuer in
+   "doors"), damit sich Produkte nicht nur nach Klicks, sondern auch nach
+   Verweildauer auf ihrer eigenen Seite unterscheiden lassen. ZUSÄTZLICH
+   in "pages": Verweildauer JE SEITE (Startseite, Team, Impressum,
+   Datenschutz, Auswertung) -- Produktseiten stecken schon einzeln in
+   "doors" und werden hier bewusst nicht doppelt gezählt. */
 function buildStats() {
   const sheet = getSheet();
   const values = sheet.getDataRange().getValues();
   const rows = values.slice(1); // Header weg
 
   const perDoor = {};       // { doorId: { title, counts: { event: n }, avgDurationSeconds } }
+  const perPage = {};       // { "team.html": { avgDurationSeconds, pageViews } }
   let totalDurationSeconds = 0;
   let durationSamples = 0;
   let emails = 0;
 
   rows.forEach(function (r) {
-    const event = r[1], doorId = r[2] || "_ohne_tuer", doorTitle = r[3];
+    const event = r[1], doorId = r[2] || "_ohne_tuer", doorTitle = r[3], page = r[7] || "";
     const value = r[5];
 
     if (!perDoor[doorId]) perDoor[doorId] = { title: doorTitle || doorId, counts: {}, _durTotal: 0, _durSamples: 0 };
     perDoor[doorId].counts[event] = (perDoor[doorId].counts[event] || 0) + 1;
     if (doorTitle) perDoor[doorId].title = doorTitle;
 
+    if (event === "page_view" && doorId === "_ohne_tuer") {
+      const pKey = page || "unbekannt";
+      if (!perPage[pKey]) perPage[pKey] = { pageViews: 0, _durTotal: 0, _durSamples: 0 };
+      perPage[pKey].pageViews += 1;
+    }
+
     if (event === "page_duration" && typeof value === "number") {
       totalDurationSeconds += value;
       durationSamples += 1;
       perDoor[doorId]._durTotal += value;
       perDoor[doorId]._durSamples += 1;
+
+      // Nur Seiten OHNE Tuer-Bezug hier sammeln -- Produktseiten haben
+      // ihre eigene, genauere Verweildauer bereits in perDoor.
+      if (doorId === "_ohne_tuer") {
+        const pKey = page || "unbekannt";
+        if (!perPage[pKey]) perPage[pKey] = { pageViews: 0, _durTotal: 0, _durSamples: 0 };
+        perPage[pKey]._durTotal += value;
+        perPage[pKey]._durSamples += 1;
+      }
     }
     if (event === "email_submit") emails += 1;
   });
@@ -117,6 +136,12 @@ function buildStats() {
     delete d._durTotal;
     delete d._durSamples;
   });
+  Object.keys(perPage).forEach(function (key) {
+    const p = perPage[key];
+    p.avgDurationSeconds = p._durSamples ? Math.round(p._durTotal / p._durSamples) : 0;
+    delete p._durTotal;
+    delete p._durSamples;
+  });
 
   return {
     ok: true,
@@ -124,6 +149,7 @@ function buildStats() {
     totalEmails: emails,
     avgDurationSeconds: durationSamples ? Math.round(totalDurationSeconds / durationSamples) : 0,
     doors: perDoor,
+    pages: perPage,
     generatedAt: new Date().toISOString(),
   };
 }

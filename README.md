@@ -151,7 +151,7 @@ Script erneut über "Bereitstellen → Bereitstellungen verwalten → Bearbeiten
 
 ---
 
-## 5. (Optional) Google Analytics 4 zusätzlich einrichten
+## 5. (Optional, nicht empfohlen) Google Analytics 4 zusätzlich einrichten
 
 Das Google-Sheet-Tracking aus Schritt 4 reicht für den Fake-Door-Test völlig
 aus. Falls du zusätzlich klassische Web-Analytics willst:
@@ -169,19 +169,19 @@ Ohne diesen Schritt funktioniert alles andere unverändert weiter.
 
 Jede dieser Optionen ist gratis und braucht nur den kompletten Projektordner:
 
-### Option A – Netlify Drop (am einfachsten, kein Account nötig zum Testen)
+### Option A – Netlify Drop (empfohlen, am einfachsten, kein Account nötig zum Testen)
 1. Gehe zu [app.netlify.com/drop](https://app.netlify.com/drop).
 2. Den kompletten Projektordner per Drag & Drop dort hineinziehen.
 3. Fertig – du bekommst sofort eine Live-URL (mit kostenlosem Account bleibt sie dauerhaft bestehen und ist unter deinem gewünschten Namen erreichbar).
 
-### Option B – GitHub Pages
+### Option B – GitHub Pages (nicht empfohlen, da aufwändiger)
 1. Kostenlosen Account auf [github.com](https://github.com) anlegen.
 2. Neues Repository erstellen, den Projektordner hochladen (Web-Oberfläche:
    "Add file → Upload files").
 3. Repository-Einstellungen → **Pages** → als Quelle den `main`-Branch wählen.
 4. Nach wenigen Minuten ist die Seite unter `https://<dein-name>.github.io/<repo-name>/` erreichbar.
 
-### Option C – Cloudflare Pages / Vercel
+### Option C – Cloudflare Pages / Vercel (nicht empfohlen, da aufwändiger)
 Beide bieten ebenfalls kostenlose Static-Hosting-Pläne mit Drag-&-Drop-Upload
 oder GitHub-Anbindung – Vorgehen ist sehr ähnlich zu Netlify/GitHub Pages.
 
@@ -202,6 +202,8 @@ Zwei Wege, dieselben Daten zu sehen:
      zu den anderen Produkten -- Produkte ganz ohne Aufrufe werden explizit
      als "noch keine Daten" angezeigt, statt zu fehlen,
    - einem **Gesamt-Funnel** (Ansicht → Klick → Produktseite → Popup geöffnet → E-Mail) über alle Produkte hinweg,
+   - **Verweildauer je Seite**: Startseite, Team, Impressum und Datenschutz jeweils einzeln
+     (die Verweildauer je Produktseite steht schon in den Karten im Produktvergleich),
    - einer **Detailtabelle** mit allen Rohzahlen inkl. Preis und Popup-Abbrüchen zum Nachlesen/Exportieren.
 2. **Das Google Sheet selbst** – jede einzelne Zeile mit Zeitstempel,
    Ereignistyp, Produkt, Sitzungs-ID und ggf. E-Mail-Adresse. Gut für eigene
