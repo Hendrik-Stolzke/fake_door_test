@@ -1,0 +1,16 @@
+# Sicherheits-Header für Netlify und Cloudflare Pages (Datei einfach mit hochladen).
+# GitHub Pages kennt KEINE eigenen Header und ignoriert diese Datei -- dort schützt nur die
+# <meta http-equiv="Content-Security-Policy">-Zeile in den HTML-Dateien (ohne frame-ancestors,
+# d. h. ohne Schutz gegen Einbettung der Seite in fremde Seiten / Clickjacking).
+# script.google.com / script.googleusercontent.com: Backend (POST) und Auswertung (JSONP).
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  X-Robots-Tag: noindex, nofollow
+
+# Änderungen an config.js sollen sofort sichtbar sein (kein Warten auf Browser-Caches).
+/js/*
+  Cache-Control: no-cache

@@ -19,22 +19,25 @@
 
   // Freundliche Namen für die generischen Seiten (Produktseiten haben ihren
   // eigenen Titel bereits über die Tür in js/config.js).
-  const PAGE_LABELS = {
-    "index.html": "Startseite",
-    "team.html": "Team",
-    "impressum.html": "Impressum",
-    "datenschutz.html": "Datenschutz",
-    "auswertung.html": "Auswertung",
-  };
-  function pageLabel(key) { return PAGE_LABELS[key] || key; }
+  const PAGE_LABELS = Object.assign(Object.create(null), {
+    "index": "Startseite",
+    "team": "Team",
+    "impressum": "Impressum",
+    "datenschutz": "Datenschutz",
+    "auswertung": "Auswertung",
+  });
+  function pageLabel(key) { return PAGE_LABELS[String(key).replace(/\.html$/, "")] || key; } // alte Schlüssel mit .html bleiben lesbar
+
+  const EXPECTED_BACKEND_VERSION = "2026-10"; // = VERSION in backend/AppsScript.gs
 
   function aggregateLocalEvents(events) {
-    const doors = {};
-    const pages = {};
+    // Object.create(null): Schlüssel wie "__proto__" aus manipuliertem Browser-Speicher sind harmlos
+    const doors = Object.create(null);
+    const pages = Object.create(null);
     let totalDuration = 0, durationSamples = 0, emails = 0;
     events.forEach((e) => {
       const doorId = e.doorId || "_ohne_tuer";
-      if (!doors[doorId]) doors[doorId] = { title: e.doorTitle || doorId, counts: {}, _durTotal: 0, _durSamples: 0 };
+      if (!doors[doorId]) doors[doorId] = { title: e.doorTitle || doorId, counts: Object.create(null), _durTotal: 0, _durSamples: 0 };
       doors[doorId].counts[e.event] = (doors[doorId].counts[e.event] || 0) + 1;
       if (e.doorTitle) doors[doorId].title = e.doorTitle;
 
@@ -87,11 +90,7 @@
     return Math.floor(sec / 60) + "m " + (sec % 60) + "s";
   }
 
-  function escapeHtml(str) {
-    return String(str == null ? "" : str).replace(/[&<>"']/g, (c) => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-    }[c]));
-  }
+  const { escapeHtml, mediaHtml } = window.FDT_UTIL;
 
   const NO_DOOR_KEY = "_ohne_tuer";
 
@@ -108,8 +107,7 @@
   }
 
   function thumbHtml(r) {
-    if (r.image) return `<img src="${escapeHtml(r.image)}" alt="${escapeHtml(r.title)}">`;
-    return escapeHtml(r.emoji || "🔒");
+    return mediaHtml(r);
   }
 
   /* =====================================================================
@@ -353,11 +351,16 @@
     const events = FDT.readLocalEvents();
     if (events.length === 0) { alert("Keine lokalen Ereignisse in diesem Browser gefunden."); return; }
     const cols = ["ts", "event", "doorId", "doorTitle", "sessionId", "value", "email", "page", "referrer", "userAgent"];
+    // Zellen, die mit = + - @ (oder Leerraum davor) beginnen, würde Excel als Formel ausführen -> Apostroph davor.
+    const cell = (v) => {
+      v = String(v == null ? "" : v);
+      if (/^[\s=+\-@]/.test(v)) v = "'" + v;
+      return '"' + v.replace(/"/g, '""') + '"';
+    };
     const lines = [cols.join(",")];
-    events.forEach((e) => {
-      lines.push(cols.map((c) => '"' + String(e[c] == null ? "" : e[c]).replace(/"/g, '""') + '"').join(","));
-    });
-    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    events.forEach((e) => { lines.push(cols.map((c) => cell(e[c])).join(",")); });
+    // BOM, damit Excel Umlaute richtig liest
+    const blob = new Blob(["\ufeff" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = "fake-door-events-lokal.csv";
@@ -416,7 +419,7 @@
 
       const timer = setTimeout(() => finish(false, new Error(
         "Zeitüberschreitung -- keine Antwort von der Web-App-URL erhalten. Prüfe, ob die URL korrekt " +
-        "ist und beim Bereitstellen unter \"Zugriff\" wirklich \"Alle\" (Anyone) ausgewählt wurde."
+        "ist und beim Bereitstellen unter \"Wer hat Zugriff\" wirklich \"Jeder\" (Anyone) ausgewählt wurde."
       )), timeoutMs || 10000);
 
       window[cbName] = function (data) { finish(true, data); };
@@ -431,24 +434,43 @@
   function init() {
     document.getElementById("exportCsvBtn").addEventListener("click", downloadCsv);
     const url = window.SITE_CONFIG && window.SITE_CONFIG.trackingWebAppUrl;
+    const showLocal = () => render(aggregateLocalEvents(FDT.readLocalEvents()));
 
     if (!url) {
       showSourceNote("⚠️ Kein Google Sheet verbunden (trackingWebAppUrl ist leer). Es werden nur lokale Testdaten aus DIESEM Browser gezeigt – für den echten Test bitte das Tracking-Backend einrichten (siehe README.md).", true);
-      render(aggregateLocalEvents(FDT.readLocalEvents()));
+      showLocal();
+      return;
+    }
+    // Der Abruf überträgt die IP-Adresse an Google -> nur mit Einwilligung (Banner auf der Startseite).
+    if (!FDT.hasConsent()) {
+      showSourceNote("ℹ️ Die Daten aus dem Google Sheet werden nur abgerufen, wenn du auf der Startseite der Nutzungsmessung zugestimmt hast (dabei wird deine IP-Adresse an Google übertragen). Bis dahin siehst du nur lokale Testdaten aus DIESEM Browser.", true);
+      showLocal();
       return;
     }
 
+    const key = new URLSearchParams(window.location.search).get("key"); // optional: STATS_KEY aus Apps Script
     showSourceNote("Lade Daten aus dem Google Sheet …", false);
-    jsonpRequest(url + (url.includes("?") ? "&" : "?") + "action=stats")
+    jsonpRequest(url + (url.includes("?") ? "&" : "?") + "action=stats" + (key ? "&key=" + encodeURIComponent(key) : ""))
       .then((data) => {
-        if (!data || data.ok === false) throw new Error((data && data.error) || "Unbekannter Fehler");
-        showSourceNote("Datenquelle: Google Sheet · zuletzt aktualisiert " + new Date().toLocaleTimeString("de-DE"), false);
+        if (!data || data.ok === false) {
+          throw new Error(data && data.error === "key"
+            ? "Zugriffsschlüssel fehlt oder ist falsch – öffne die Seite als auswertung.html?key=DEIN_STATS_KEY."
+            : "Das Backend meldete einen Fehler (Details im Apps-Script-Ausführungsprotokoll).");
+        }
+        const notes = ["Datenquelle: Google Sheet", "Backend-Version " + (data.version || "unbekannt"), "aktualisiert " + new Date().toLocaleTimeString("de-DE")];
+        const warn = [];
+        if (data.version !== EXPECTED_BACKEND_VERSION) warn.push("⚠️ Backend veraltet (erwartet " + EXPECTED_BACKEND_VERSION + "): Code aus backend/AppsScript.gs einfügen und als NEUE VERSION bereitstellen.");
+        if (!data.lastEventAt) warn.push("⚠️ Im Sheet sind noch keine Ereignisse.");
+        else if (Date.now() - new Date(data.lastEventAt).getTime() > 24 * 3600 * 1000) {
+          warn.push("⚠️ Keine neuen Ereignisse seit " + new Date(data.lastEventAt).toLocaleString("de-DE") + " – kommt noch etwas an? (Neue Version bereitgestellt? URL in config.js aktuell?)");
+        }
+        showSourceNote(notes.join(" · ") + (warn.length ? " · " + warn.join(" ") : ""), warn.length > 0);
         render(data);
       })
       .catch((err) => {
         console.warn("[Auswertung] Sheet-Abruf fehlgeschlagen:", err);
         showSourceNote("⚠️ " + err.message + " Zeige unten stattdessen lokale Testdaten aus DIESEM Browser.", true);
-        render(aggregateLocalEvents(FDT.readLocalEvents()));
+        showLocal();
       });
   }
 

@@ -4,9 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Datenschutz – {{siteTitle}}</title>
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://script.google.com https://script.googleusercontent.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; object-src 'none'; base-uri 'none'; form-action 'none'">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🚪%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<a class="skip-link" href="#main">Zum Inhalt springen</a>
+<noscript><div class="config-warning">Impressum und Datenschutzerklärung werden mit JavaScript aus der Konfiguration geladen. Bitte aktiviere JavaScript oder wende dich an den Seitenbetreiber (Kontaktdaten über die Startseite bzw. den Hoster).</div></noscript>
 
 <header class="site-header">
   <div class="container">
@@ -23,87 +28,121 @@
   </div>
 </header>
 
+<main id="main">
 <div class="page-content">
   <div class="container">
     <h1>Datenschutzerklärung</h1>
-    <p class="lead">Stand: <span id="today"></span></p>
+    <p class="lead">Stand: <span id="stand"></span></p>
 
     <section>
-      <h2>1. Verantwortliche Stelle</h2>
+      <h2>1. Verantwortlicher</h2>
       <p id="dsAddress"></p>
       <p id="dsContact"></p>
 
       <h2>2. Worum es auf dieser Seite geht</h2>
       <p>
         Diese Website ist ein sogenannter <strong>Fake-Door-Test</strong>: Wir testen, für
-        welche Produktideen echtes Interesse besteht. Es findet <strong>kein echter
-        Verkauf</strong> statt. Stattdessen kannst du über den Button "Verfügbarkeit
-        prüfen" ein Popup öffnen und dich unverbindlich per E-Mail benachrichtigen
-        lassen, sobald ein Produkt verfügbar ist.
+        welche Produktideen echtes Interesse besteht. Die Produkte gibt es noch nicht, es findet
+        <strong>kein Verkauf und keine Zahlungsabwicklung</strong> statt. Über den Button
+        &bdquo;Verfügbarkeit prüfen&ldquo; kannst du dich freiwillig per E-Mail benachrichtigen lassen,
+        falls wir ein Produkt umsetzen.
       </p>
 
-      <h2>3. Welche Daten wir erheben</h2>
-      <p>Wenn du der Analyse im Banner zustimmst, erfassen wir:</p>
+      <h2>3. Hosting und Server-Logfiles</h2>
+      <p>
+        Die Website wird bei <span id="dsHost"></span> gehostet. Beim Aufruf verarbeitet der
+        Hosting-Anbieter technisch notwendige Daten, insbesondere deine IP-Adresse, Datum und
+        Uhrzeit, die aufgerufene Datei und Browserangaben (Server-Logfiles). Das ist für die
+        Auslieferung und Sicherheit der Seite erforderlich. Rechtsgrundlage ist Art. 6 Abs. 1
+        lit. f DSGVO (berechtigtes Interesse an einem stabilen und sicheren Betrieb). Der Anbieter
+        kann Daten auch in den USA verarbeiten (siehe Punkt 7).
+      </p>
+
+      <h2>4. Nutzungsmessung (nur mit deiner Einwilligung)</h2>
+      <p>Wenn du im Banner &bdquo;Zustimmen&ldquo; wählst, erfassen wir:</p>
       <ul>
-        <li>welche Seite du aufrufst und wann (Seitenaufruf) -- bei den einzelnen Produktseiten getrennt nach Produkt,</li>
-        <li>auf welche Produktkarte du auf der Startseite klickst,</li>
-        <li>ob du auf der jeweiligen Produktseite auf "Verfügbarkeit prüfen" klickst und damit das Popup öffnest (Interesse),</li>
-        <li>ob du das Popup wieder schließt, ohne eine E-Mail-Adresse einzutragen (inkl. Sekunden bis zum Schließen),</li>
-        <li>wie lange du auf der Startseite bzw. auf der jeweiligen Produktseite verweilst,</li>
-        <li>eine zufällig erzeugte, nicht personenbezogene Sitzungs-ID (gespeichert in deinem Browser via <code>localStorage</code>), um Klicks derselben Sitzung zuzuordnen,</li>
-        <li>technische Angaben wie Browsertyp und verweisende Seite (Referrer),</li>
-        <li>freiwillig: deine E-Mail-Adresse, <strong>nur</strong> wenn du sie aktiv im Formular einträgst und der Speicherung zustimmst.</li>
+        <li>welche Seite du aufrufst und wann &ndash; bei Produktseiten getrennt nach Produkt,</li>
+        <li>auf welche Produktkarte du klickst und welche Produktkarten für dich sichtbar waren,</li>
+        <li>ob du auf &bdquo;Verfügbarkeit prüfen&ldquo; klickst und ob du das Popup wieder schließt, ohne eine E-Mail einzutragen (inkl. Sekunden bis zum Schließen),</li>
+        <li>wie lange du auf einer Seite bleibst,</li>
+        <li>eine zufällig erzeugte, pseudonyme Besucher-ID, damit wir Ereignisse desselben Browsers zuordnen können (sie bleibt in deinem Browser, bis du sie löschst),</li>
+        <li>Browsertyp (User-Agent) und die verweisende Seite (Referrer).</li>
+      </ul>
+      <p>
+        Dafür speichern wir in deinem Browser (<code>localStorage</code>): deine Entscheidung zum Banner
+        (<code>fdt_consent</code>), die Besucher-ID (<code>fdt_session_id</code>) und eine lokale Kopie der
+        Ereignisse (<code>fdt_events</code>, nur in deinem Browser). Die Ereignisse werden an ein von uns
+        betriebenes Google Sheet (Google Apps Script) übertragen. Empfänger ist Google
+        (Google Ireland Limited bzw. Google LLC, USA); dabei verarbeitet Google technisch bedingt auch
+        deine IP-Adresse (siehe <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Datenschutzerklärung von Google</a>
+        und Punkt 7).
+      </p>
+      <p>
+        <strong>Rechtsgrundlage:</strong> deine Einwilligung, Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.
+        Die Einwilligung ist freiwillig; ohne sie kannst du die Seite uneingeschränkt nutzen. Das Speichern
+        deiner Banner-Entscheidung selbst ist technisch erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG).
+      </p>
+
+      <h2>5. Auswertungsseite (nur für den Betreiber)</h2>
+      <p>
+        Der Betreiber wertet die Ergebnisse über die nicht verlinkte Seite <code>auswertung.html</code> aus.
+        Ruft jemand diese Seite auf, wird &ndash; nur wenn im Browser eine Einwilligung zur Nutzungsmessung
+        vorliegt &ndash; eine Zusammenfassung (Zahlen, keine E-Mail-Adressen) bei Google abgerufen; dabei verarbeitet
+        Google technisch bedingt die IP-Adresse der aufrufenden Person (Punkt 4 und 7 gelten entsprechend).
+        Ohne Einwilligung findet kein Abruf statt.
+      </p>
+
+      <h2>6. E-Mail-Benachrichtigung (freiwillig)</h2>
+      <p>
+        Wenn du im Popup deine E-Mail-Adresse einträgst und die Einwilligung anhakst, speichern wir
+        deine E-Mail-Adresse, den Zeitpunkt, das gewählte Produkt und die Version des Einwilligungstextes
+        im oben genannten Google Sheet, um dich <strong>einmalig</strong> darüber zu informieren, ob wir dieses Produkt
+        umsetzen. Die Einwilligung setzt voraus, dass du mindestens 16 Jahre alt bist. Die E-Mail-Adresse wird
+        <strong>nie</strong> mit einer Besucher-ID, dem Browsertyp oder dem Referrer verknüpft &ndash; auch dann nicht, wenn du
+        der Nutzungsmessung (Punkt 4) zugestimmt hast.
+        Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Wir geben deine E-Mail-Adresse
+        nicht an Dritte weiter; Empfänger ist nur Google als Anbieter des Dienstes (siehe Punkt 7).
+        Du kannst die Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen: formlos per E-Mail
+        an die oben genannte Adresse. Wir löschen deine Adresse dann.
+      </p>
+
+      <h2>7. Auftragsverarbeitung und Übermittlung in die USA</h2>
+      <p id="dsTransfer"></p>
+
+      <h2>8. Speicherdauer</h2>
+      <ul>
+        <li>Daten der Nutzungsmessung im Google Sheet: <span id="dsRetEvents"></span>.</li>
+        <li>E-Mail-Adressen: <span id="dsRetEmails"></span>.</li>
+        <li>Browser-Speicher (Besucher-ID, lokale Ereigniskopie): bis du sie über &bdquo;Einwilligung ändern&ldquo; bzw. den Button unten löschst oder deinen Browser-Speicher leerst.</li>
+        <li>Server-Logfiles beim Hosting-Anbieter: nach dessen Löschfristen.</li>
       </ul>
 
-      <h2>4. Wo diese Daten gespeichert werden</h2>
+      <h2>9. Deine Rechte</h2>
       <p>
-        Die Ereignisse werden an ein von uns betriebenes Google Sheet (über ein Google Apps
-        Script) übertragen und dort tabellarisch gespeichert. Google kann dabei als
-        Auftragsverarbeiter technische Metadaten wie deine IP-Adresse verarbeiten, siehe
-        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google-Datenschutzerklärung</a>.
+        Du hast das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17),
+        Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen
+        Verarbeitungen auf Grundlage berechtigter Interessen (Art. 21). Erteilte Einwilligungen kannst
+        du jederzeit mit Wirkung für die Zukunft widerrufen (Art. 7 Abs. 3). Wende dich dazu an die
+        oben genannte Adresse. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren
+        (Art. 77 DSGVO), z. B. bei der für deinen Wohnort oder unseren Sitz zuständigen Landesbehörde.
       </p>
-      <p id="gaBlock" style="display:none;">
-        Zusätzlich verwenden wir Google Analytics 4 zur anonymisierten Reichweitenmessung
-        (IP-Anonymisierung aktiviert).
-      </p>
-
-      <h2>5. Rechtsgrundlage</h2>
       <p>
-        Die Verarbeitung erfolgt auf Grundlage deiner Einwilligung (Art. 6 Abs. 1 lit. a
-        DSGVO), die du über den Cookie-/Consent-Banner erteilst. Für die freiwillige
-        E-Mail-Benachrichtigung ist die gesonderte Zustimmung im Formular die Rechtsgrundlage.
-        Du kannst deine Einwilligung jederzeit für die Zukunft widerrufen.
+        Du bist nicht verpflichtet, Daten bereitzustellen. Eine automatisierte Entscheidungsfindung
+        einschließlich Profiling findet nicht statt.
       </p>
 
-      <h2>6. Einwilligung widerrufen</h2>
+      <h2>10. Einwilligung zur Nutzungsmessung widerrufen</h2>
       <p>
-        Über diesen Button setzt du deine Cookie-/Tracking-Einwilligung zurück (die Seite
-        lädt danach neu und zeigt den Banner erneut an):
+        Über diesen Button (oder den Link &bdquo;Einwilligung ändern&ldquo; am Seitenende) löschst du
+        deine Entscheidung, die Besucher-ID und die lokale Ereigniskopie. Die Seite lädt danach neu und
+        zeigt den Banner erneut an. Bereits übertragene Daten werden dadurch nicht automatisch im Sheet
+        gelöscht &ndash; schreib uns dafür kurz eine E-Mail.
       </p>
       <button type="button" class="btn btn-ghost" id="resetConsentBtn">Einwilligung zurücksetzen</button>
-
-      <h2>7. Speicherdauer</h2>
-      <p>
-        Ereignisdaten im Google Sheet verbleiben dort, bis sie manuell gelöscht werden. Die
-        lokale Sitzungs-ID in deinem Browser bleibt bestehen, bis du deinen Browser-Speicher
-        leerst oder die Einwilligung widerrufst.
-      </p>
-
-      <h2>8. Deine Rechte</h2>
-      <p>
-        Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der
-        Verarbeitung, Datenübertragbarkeit sowie Widerspruch. Wende dich dazu an die oben
-        genannte Kontaktadresse.
-      </p>
-
-      <p class="placeholder">
-        ⚠️ Platzhalter: Diese Vorlage ersetzt keine Rechtsberatung. Bitte prüfe – insbesondere
-        bei Erhebung von E-Mail-Adressen und Einsatz von Google-Diensten – ob eine
-        Auftragsverarbeitungsvereinbarung nötig ist und passe die Texte an dein Projekt an.
-      </p>
     </section>
   </div>
 </div>
+</main>
 
 <footer class="site-footer">
   <div class="container">
@@ -112,41 +151,13 @@
       <a href="team.html">Team</a>
       <a href="datenschutz.html">Datenschutz</a>
       <a href="impressum.html">Impressum</a>
-      <a href="auswertung.html">Auswertung</a>
+      <a href="#" data-consent-settings>Einwilligung ändern</a>
     </nav>
   </div>
 </footer>
 
-<div class="consent-banner" id="consentBanner">
-  <p>Wir verwenden anonyme Analyse-Funktionen (eigenes Tracking, optional Google Analytics), um zu verstehen, welche Produktideen auf Interesse stoßen. Details in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
-  <div class="actions">
-    <button type="button" class="btn btn-primary" id="consentAccept">Akzeptieren</button>
-    <button type="button" class="btn btn-ghost" id="consentDecline">Ablehnen</button>
-  </div>
-</div>
-
 <script src="js/config.js"></script>
 <script src="js/tracking.js"></script>
 <script src="js/app.js"></script>
-<script>
-  document.getElementById("year").textContent = new Date().getFullYear();
-  document.getElementById("today").textContent = new Date().toLocaleDateString("de-DE");
-  document.getElementById("dsAddress").innerHTML =
-    escapeHtmlLocal(SITE_CONFIG.companyName) + ", " +
-    escapeHtmlLocal(SITE_CONFIG.companyStreet) + ", " +
-    escapeHtmlLocal(SITE_CONFIG.companyCity) + ", " +
-    escapeHtmlLocal(SITE_CONFIG.companyCountry);
-  document.getElementById("dsContact").textContent = "E-Mail: " + SITE_CONFIG.companyEmail;
-  if (SITE_CONFIG.gaMeasurementId) document.getElementById("gaBlock").style.display = "block";
-  document.getElementById("resetConsentBtn").addEventListener("click", function () {
-    FDT.resetConsent();
-  });
-
-  function escapeHtmlLocal(str) {
-    return String(str == null ? "" : str).replace(/[&<>"']/g, (c) => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-    }[c]));
-  }
-</script>
 </body>
 </html>

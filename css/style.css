@@ -9,7 +9,7 @@
   color-scheme: light;
 
   /* Marke – hier deine Hauptfarbe eintragen (Hex-Code) */
-  --brand: #2a78d6;
+  --brand: #1f6bc4;
   --brand-dark: #184f95;
   --brand-contrast: #ffffff;
   --accent: #eb6834;
@@ -21,7 +21,7 @@
   --page-plane: #f2f2ef;
   --text-primary: #0b0b0b;
   --text-secondary: #52514e;
-  --muted: #898781;
+  --muted: #6b6963;
   --gridline: #e1e0d9;
   --border: rgba(11, 11, 11, 0.1);
 
@@ -126,6 +126,8 @@ button { font-family: inherit; }
   color: var(--text-secondary);
   font-size: 0.92rem;
   font-weight: 500;
+  display: inline-block;
+  padding: 6px 4px; /* Touch-Ziel >= 24 px (WCAG 2.5.8) */
 }
 .nav-links a:hover { color: var(--text-primary); text-decoration: none; }
 
@@ -249,29 +251,22 @@ button { font-family: inherit; }
 }
 
 /* ---------- Popup: "Verfügbarkeit prüfen" / E-Mail hinterlassen ---------- */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(11, 11, 11, 0.55);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 100;
-}
-.modal-overlay.open { display: flex; }
-.modal-card {
+dialog.modal-card {
   background: var(--surface-1);
+  color: var(--text-primary);
+  border: none;
   border-radius: var(--radius-lg);
   max-width: 440px;
-  width: 100%;
+  width: calc(100% - 40px);
   max-height: 92vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
-  padding: 26px 26px 28px;
-  position: relative;
-  animation: modal-in 0.18s ease;
+  padding: 0;
+  margin: auto;
 }
+dialog.modal-card[open] { animation: modal-in 0.18s ease; }
+dialog.modal-card::backdrop { background: rgba(11, 11, 11, 0.55); }
+.modal-inner { padding: 26px 26px 28px; position: relative; }
 @keyframes modal-in {
   from { opacity: 0; transform: translateY(8px) scale(0.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
@@ -549,7 +544,7 @@ button { font-family: inherit; }
   justify-content: space-between;
 }
 .site-footer nav { display: flex; gap: 18px; flex-wrap: wrap; }
-.site-footer a { color: var(--muted); }
+.site-footer a { color: var(--muted); display: inline-block; padding: 4px 2px; }
 
 /* ---------- Consent banner ---------- */
 .consent-banner {
@@ -566,8 +561,13 @@ button { font-family: inherit; }
   padding: 18px 20px;
   z-index: 200;
   display: none;
+  max-height: 45vh;
+  overflow-y: auto;
 }
 .consent-banner.open { display: block; }
+.consent-banner details { margin: 0 0 12px; font-size: 0.82rem; color: var(--text-secondary); }
+.consent-banner details p { margin: 6px 0 0; font-size: inherit; }
+.consent-banner summary { cursor: pointer; padding: 4px 0; }
 .consent-banner p {
   margin: 0 0 12px;
   font-size: 0.86rem;
@@ -586,6 +586,20 @@ button { font-family: inherit; }
   display: inline-block;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 300;
+  background: var(--surface-1);
+  color: var(--text-primary);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--brand);
+}
+.skip-link:focus { top: 8px; }
+.reveal-title:focus { outline: none; }
 
 .visually-hidden {
   position: absolute;
@@ -839,3 +853,31 @@ table.data-table td:not(:first-child), table.data-table th:not(:first-child) {
   border-radius: 4px;
   font-size: 0.85em;
 }
+
+/* ---------- Test-Hinweis (Transparenz: kein echtes Angebot) & Konfig-Warnung ---------- */
+.test-notice {
+  background: #fff4d6;
+  color: #4a3800;
+  border-bottom: 1px solid #e0c46c;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+.config-warning {
+  background: #b3261e;
+  color: #fff;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+.unavailable { margin: 0 0 10px; font-size: 0.9rem; font-weight: 700; color: var(--text-primary); }
+.price-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+/* Lange deutsche Wörter ("Datenschutzerklärung") dürfen auf schmalen Handys umbrechen statt die Seite zu verbreitern */
+h1, h2, h3 { overflow-wrap: anywhere; hyphens: auto; }
